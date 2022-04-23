@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { HeadBar, HeaderWrapper, Nav, SlideImgWrapper, SlideTextWrapper, SlideWrapper, ToggleMenu } from './styles'
 
 const Header: React.FC = ()  => {
@@ -16,8 +17,8 @@ const Header: React.FC = ()  => {
                         <li><a href="#">Resources</a></li>
                     </ul>
                     <ul>
-                        <li><a href="#">login</a></li>
-                        <li><a href="#">join community</a></li>
+                        <li><Link to="/signin">login</Link></li>
+                        <li><Link to="/signup">join community</Link></li>
                     </ul>
                 </Nav>
                 <ToggleMenu>

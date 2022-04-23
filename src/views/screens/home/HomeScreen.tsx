@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import Footer from '../../components/footer/Footer'
 import Header from '../../components/header/Header'
 import { Article, ArticleWrapper, CommunityCard, NewSpace, SectionOneContent, SectionOneWrapper, SectionThreeContent, SectionThreeWrapper, SectionTwoContent, SectionTwoWrapper, Wrapper } from './style'
