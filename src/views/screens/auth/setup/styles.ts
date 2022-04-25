@@ -44,6 +44,7 @@ export const  Content = styled.div<{finishedFirstStep: boolean}>`
     .form-indicator {
         display: flex;
         margin-top: 10vh;
+        cursor: pointer;
 
         ::before {
             content: "";
@@ -78,7 +79,7 @@ export const  Form = styled.div`
     display: flex;
     width: 100%;
     max-width: 480px;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 `;
 export const  FormContent = styled.div<{finishedFirstStep: boolean}>`
@@ -89,6 +90,10 @@ export const  FormContent = styled.div<{finishedFirstStep: boolean}>`
     left: ${props => props.finishedFirstStep ? "-100%" : "0%"};
     flex: 1;
     transition: all 0.5s ease-in-out;
+
+    :first-child {
+        // margin-right: 20px;
+    }
     h2 {
         color: rgba(4, 142, 185, 1);
         font-size: 30px;

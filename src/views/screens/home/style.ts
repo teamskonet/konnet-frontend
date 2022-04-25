@@ -2,6 +2,8 @@ import styled from 'styled-components'
 
 export const Wrapper = styled.div`
     background-color: #fff;
+    position: relative;
+    z-index: 99;
 `;
 export const SectionOneWrapper = styled.div`
     background-color: #fff;

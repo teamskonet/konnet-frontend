@@ -8,6 +8,7 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import SigninScreen from './views/screens/auth/signin/SigninScreen';
 import SignupScreen from './views/screens/auth/signup/SignupScreen';
 import SetupScreen from './views/screens/auth/setup/SetupScreen';
+import PricingScreen from './views/screens/auth/pricing/PricingScreen';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/signin" element={<SigninScreen />} />
             <Route path="/signup" element={<SignupScreen />} />
             <Route path="/setup" element={<SetupScreen />} />
+            <Route path="/pricing" element={<PricingScreen />} />
           </Routes>
         </ThemeProvider>
       </Router>

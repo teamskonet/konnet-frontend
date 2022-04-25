@@ -30,6 +30,8 @@ export const  HeadBar = styled.div`
 export const ToggleMenu = styled.div`
     display: block;
     width: 22px;
+    cursor: pointer;
+
     span {
         margin: 4px 0px;
     }
@@ -46,20 +48,139 @@ export const ToggleMenu = styled.div`
     }
 `;
 
-export const  Nav = styled.nav`
-    display: none;
+export const  Nav = styled.nav<{navigationState: boolean}>`
+    display: block;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    height: 100vh;
+    z-index: 9999;
+
+    ::before {
+        content: "";
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        display: ${props => props.navigationState ? "block" : "none"};
+        height: 100vh;
+        width: 100%;
+        background-color: ${props => props.navigationState ? "#0006" : "transparent"};
+        transition: all 0.2s ease-in-out;
+
+        @media screen and (min-width: 800px) {
+            background-color: transparent;
+            width: 240px;
+            height: unset;
+            z-index: 999999999;
+        }
+    }
+
+    @media screen and (min-width: 800px) {
+        width: 100%;
+        height: unset;
+        position: unset;
+        background-color: transparent;
+    }
+`;
+export const NavContent = styled.div<{navigationState: boolean}>`
+    display: block;
+    background-color: #fff;
+    position: fixed;
+    left: ${props => props.navigationState ? "0px" : "-240px"};
+    width: 240px;
+    height: 100%;
+    z-index: 999999;
+    transition: all 0.2s ease-in-out;
+
+    .nav-head {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px 30px;
+        border-bottom: 1px solid #ccc;
+        h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-left: 10px;
+            color: ${props => props.theme.primaryColor};
+        }
+        img {
+            width: 40px;
+        }
+    }
+
+    ul {
+        :first-of-type {
+            padding: 0px 20px;
+            margin-top: 20px;
+            li {
+                margin-bottom: 15px;
+                a {
+                    display: block;
+                    padding: 10px 10px;
+                    color: #333;
+                    font-weight: 400;
+                }
+            }
+        }
+        :last-child {
+            margin-top: 20px;
+            padding: 20px 30px;
+            li {
+                margin-bottom: 20px;
+                :first-child {
+                    a {
+                        color: ${props => props.theme.primaryColor};
+                    }
+                }
+                :last-child {
+                    a {
+                        background-color: ${props => props.theme.primaryColor};
+                        color: #fff;
+                    }
+                }
+                a {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                    height: 50px;
+                    font-weight: 600;
+                    font-size: 11px;
+                    border:  1px solid ${props => props.theme.primaryColor};
+                    border-radius: 4px;
+                    text-transform: uppercase;
+                }
+            }
+        }
+    }
 
     @media screen and (min-width: 880px) {
         display: flex;
         align-items: center;
+        position: unset;
+        background-color: unset;
+        height: unset;
         flex: 1;
         justify-content: flex-end;
+        width: 100%;
+        transition:unset;
+
+        .nav-head {
+            display: none;
+        }
+
         ul {
             display: flex;
-            :first-child {
+            padding: 0px 0px;
+            margin-top: 0px;
+            :first-of-type {
                 flex: 1;
                 justify-content: center;
+                padding: 0px 0px;
+                margin-top: 0px;
                 li {
+                    margin-bottom: 0px;
                     margin-right: 40px;
                     :last-child {
                         margin-right: 0px;
@@ -72,6 +193,7 @@ export const  Nav = styled.nav`
                 }
             }
             :last-child {
+                padding: 0px;
                 li {
                     :first-child {
                         margin-right: 15px;
@@ -81,6 +203,7 @@ export const  Nav = styled.nav`
                     }
                     :last-child {
                         a {
+                            color: rgba(69, 5, 85, 1);
                             background-color: #fff;
                         }
                     }
@@ -128,14 +251,14 @@ export const SlideTextWrapper = styled.div`
         color: #FF6652;
     }
     h1 {
-        font-size: 50px;
+        font-size: 40px;
         color: #fff;
         font-weight: 700;
         margin-bottom: 40px;
     }
     h6 {
         color: #fff;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 400;
         margin-bottom: 48px;
     }

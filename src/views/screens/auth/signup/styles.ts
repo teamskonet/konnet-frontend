@@ -206,6 +206,7 @@ export const  ColumTwo = styled.div`
          background-color: #3B97D3;
          border: none;
          width: 100%;
+         flex-basis: 45px;
          height: 45px;
          border-radius: 4px;
          color: #fff;

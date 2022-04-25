@@ -11,3 +11,73 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+
+.lofty-message-box, .lofty-message-error {
+  display: block;
+  position: fixed;
+  top: 20px;
+  right: -300px;
+  min-width: 150px;
+  max-width: 300px;
+  min-height: 60px;
+  padding: 20px;
+  background: #0908;
+  border-radius: 2px;
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999999999999999;
+  animation: slideMessage 5s linear 1;
+}
+
+.lofty-message-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 0%;
+  height: 4px;
+  background-color: #090;
+  height: 2px;
+  animation: timeIndicator 5s linear 1;
+}
+.lofty-message-error::after {
+  background-color: #900;
+}
+
+@keyframes timeIndicator {
+  0% {
+      width: 100%;
+  }
+  93% {
+      width: 0%;
+  }
+  100% {
+      width: 0%;
+  }
+}
+
+.lofty-message-error {
+  background: #9008;
+}
+
+@keyframes slideMessage {
+  0% {
+      right: -300px;
+  }
+  5% {
+      right: 20px;
+  }
+  93% {
+      right: 20px;
+  }
+  98% {
+      right: 40px;
+  }
+  100% {
+      right: -300px;
+  }
+}

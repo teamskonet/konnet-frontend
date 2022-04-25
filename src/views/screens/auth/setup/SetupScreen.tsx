@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Content, Form, FormContent, FormWrapper, HeadBar, Wrapper } from "./styles";
 
 const SetupScreen: React.FC = () => {
@@ -8,6 +8,13 @@ const SetupScreen: React.FC = () => {
     const completeFirstStep = () => {
         setFinishedFirstStep(true);
     }
+
+    let navigate = useNavigate();
+
+    const finishSetup = () => {
+        return navigate("/pricing");
+    }
+    
     return (
         <Wrapper>
             <HeadBar>
@@ -20,7 +27,7 @@ const SetupScreen: React.FC = () => {
                 <FormWrapper>
                     <Form>
                         <FormContent finishedFirstStep={finishedFirstStep}>
-                            <h2>Let's set up your <br /> Konectspace</h2>
+                            <h2>Let's set up your Konectspace</h2>
 
                             <label htmlFor="">Name your Konectspace</label>
                             <input type="text" placeholder="Enter the name of your Konectspace"/>
@@ -29,18 +36,18 @@ const SetupScreen: React.FC = () => {
                             <button onClick={completeFirstStep}>Next</button>
                         </FormContent>
                         <FormContent finishedFirstStep={finishedFirstStep}>
-                            <h2>Let's set up your <br /> Konectspace</h2>
+                            <h2>Let's set up your Konectspace</h2>
 
                             <label htmlFor="">Name your organization</label>
                             <input type="text" placeholder="Enter the name of your organization"/>
                             <label htmlFor="">Description of projects</label>
                             <input type="text" placeholder="Write description of project"/>
-                            <button>Create space</button>
+                            <button onClick={() => finishSetup()}>Create space</button>
                         </FormContent>
                     </Form>
                 </FormWrapper>
 
-                <div className="form-indicator"></div>
+                <div className="form-indicator" onClick={() => setFinishedFirstStep(!finishedFirstStep)}></div>
             </Content>
         </Wrapper>
     )
