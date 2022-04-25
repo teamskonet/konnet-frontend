@@ -158,43 +158,57 @@ export const CommunityCard = styled.div`
     }
     .row {
         display: flex;
+        flex-direction: column;
         padding: 20px;
         background: #fff;
         margin-bottom: -8px;
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
 
-        img {
-            width: 70px;
-            height: 70px;
-
-            margin-right: 20px;
+        @media screen and (min-width: 880px) {
+            flex-direction: row;
         }
-        .col {
+
+        .sec {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px 0px;
             flex: 1;
-            h4 {
-                color: #000;
-                font-size: 14px;
-                font-weight: 600;
+            margin-bottom: 20px;
+            @media screen and (min-width: 880px) {
+                margin-bottom: 0px;
             }
-            h6 {
-                color: #000;
-                font-size: 13px;
-                font-weight: 400;
+            img {
+                width: 70px;
+                height: 70px;
+
+                margin-right: 20px;
+            }
+            .col {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 8px 0px;
+                flex: 1;
+                h4 {
+                    color: #000;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+                h6 {
+                    color: #000;
+                    font-size: 13px;
+                    font-weight: 400;
+                }
             }
         }
         a {
+            white-space: nowrap;
             padding: 12px 20px;
             border-radius: 8px;
             background-color: #FFDC5D;
             font-size: 13px;
             font-weight: 800;
             color: #494747;
-            align-self: center;
+            align-self: flex-end;
         }
     }
 `;

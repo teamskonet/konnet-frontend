@@ -31,10 +31,12 @@ const HomeScreen: React.FC = ()  => {
                                 <h2>Communities you can join...</h2>
                             </div>
                             <div className="row">
-                                <img src="/assets/svg/community-icon.svg" alt="community icon" />
-                                <div className="col">
-                                    <h4>Tech365</h4>
-                                    <h6>44 community members</h6>
+                                <div className="sec">
+                                    <img src="/assets/svg/community-icon.svg" alt="community icon" />
+                                    <div className="col">
+                                        <h4>Tech365</h4>
+                                        <h6>44 community members</h6>
+                                    </div>
                                 </div>
                                 <a href="#">ENTER SPACE</a>
                             </div>
@@ -44,10 +46,12 @@ const HomeScreen: React.FC = ()  => {
                                 <h2>Communities you can join...</h2>
                             </div>
                             <div className="row">
+                                <div className="sec">
                                 <img src="/assets/svg/community-icon.svg" alt="community icon" />
                                 <div className="col">
                                     <h4>Banking 101</h4>
                                     <h6>44 community members</h6>
+                                </div>  
                                 </div>
                                 <a href="#">ENTER SPACE</a>
                             </div>
