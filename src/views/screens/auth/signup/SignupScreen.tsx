@@ -100,7 +100,7 @@ const SignupScreen: React.FC = () => {
                     <button onClick={signup}>{isLoading ? <Loader topColor={undefined} sideColor={undefined} /> : "Sign up"}</button>
                     <div className="form-meta">
                         <span>Alreay have account? </span>
-                        <a href="#">Sign in</a>
+                        <Link to="/signin">Sign in</Link>
                     </div>
                 </ColumTwo>
             </ColumWrapper>

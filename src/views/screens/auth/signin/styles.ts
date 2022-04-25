@@ -198,7 +198,7 @@ export const  ColumTwo = styled.div`
          background-color: #3B97D3;
          border: none;
          width: 100%;
-         height: 45px;
+         min-height: 45px;
          border-radius: 4px;
          color: #fff;
          margin-top: 10px;
