@@ -1,14 +1,54 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ColumOne, ColumTwo, ColumWrapper, HeadBar, Wrapper } from "./styles";
 import { RiUserLine } from 'react-icons/ri'
 import { AiOutlineGooglePlus, AiOutlineMail, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { BiCheck } from 'react-icons/bi'
 import { HiOutlineLockClosed } from 'react-icons/hi'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import AxiosCall from "../../../../Utils/axios";
+import { FaLessThan } from "react-icons/fa";
+import Message from "../../../components/Message/Index";
+import Loader from "../../../components/Loader/Loader";
 
 const SigninScreen: React.FC = () => {
     const [rememberUser, setRememberUser] = useState<boolean>(false)
     const [showPassword, setShowPassword] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const email = useRef<any>(null);
+    const password = useRef<any>(null);
+
+    let navigate = useNavigate();
+
+    const signin = async (e: any) => {
+        e.preventDefault();
+        setIsLoading(true)
+        console.log("email", email.current.value);
+        console.log("password", password.current.value);
+
+        try {
+            const res = await AxiosCall({
+                method: "POST",
+                path: "/login",
+                data: {
+                    email: email.current.value,
+                    password: password.current.value
+                }
+              });
+
+            // console.log(res);
+
+            setIsLoading(false)
+            // localStorage.setItem("authToken", res.token)
+            Message.success("Signin success")
+            
+            return navigate("/home");
+        } catch (err: any) {
+            setIsLoading(false)
+            Message.error(err?.response.data.message)
+        }
+    }
+    
     return(
         <Wrapper>
             <HeadBar>
@@ -37,15 +77,15 @@ const SigninScreen: React.FC = () => {
                     <label htmlFor="full-name">Email</label>
                     <div className="input-col">
                         <AiOutlineMail />
-                        <input type="text" name="full-name" id="full-name" placeholder="email"/>
+                        <input ref={email} type="text" name="full-name" id="full-name" placeholder="email"/>
                     </div>
                     <label htmlFor="full-name">Password</label>
                     <div className="input-col">
                         <HiOutlineLockClosed />
-                        <input type={showPassword ? "text" : "password"} name="full-name" id="full-name" placeholder="password"/>
+                        <input ref={password} type={showPassword ? "text" : "password"} name="full-name" id="full-name" placeholder="password"/>
                         {showPassword ? <AiOutlineEyeInvisible onClick={() => setShowPassword(!showPassword)}/> : <AiOutlineEye style={{marginLeft: 4}} onClick={() => setShowPassword(!showPassword)}/>}
                     </div>
-                    <button>Sign in</button>
+                    <button onClick={signin}>{isLoading ? <Loader topColor={undefined} sideColor={undefined} /> : "Sign in"}</button>
                     <div className="form-meta">
                         <div className="terms-col" onClick={() => setRememberUser(!rememberUser)}>
                             <div className="check-box">

@@ -1,34 +1,34 @@
 import { Wrapper, Success, Text, Error } from "./styles";
 
-export const success = (message) => {
+export const success = (message: String) => {
     if (document.querySelector('.lofty-message-wrapper')) {
-        const wrapper = document.querySelector('.lofty-message-wrapper')
+        const wrapper:Element | null = document.querySelector('.lofty-message-wrapper')
         const content = '<div class="lofty-message-box lofty-message-success"><span>'+message+'</span></div>';
-        wrapper.innerHTML = content
+        wrapper!.innerHTML = content
     } else {
         const appWrapper = document.getElementById('root')
         const wrapper = document.createElement("div");
         wrapper.classList.add("lofty-message-wrapper")
-        appWrapper.appendChild(wrapper)
+        appWrapper!.appendChild(wrapper)
 
         const content = '<div class="lofty-message-box lofty-message-success"><span>'+message+'</span></div>';
         wrapper.innerHTML = content
     }
 }
 
-export const error = (message) => {
-    let displayMessage = "An error occurred";
+export const error = (message: String) => {
+    let displayMessage: String = "An error occurred";
     displayMessage = message
 
     if (document.querySelector('.lofty-message-wrapper')) {
         const wrapper = document.querySelector('.lofty-message-wrapper')
         const content = '<div class="lofty-message-box lofty-message-error"><span>'+displayMessage+'</span></div>';
-        wrapper.innerHTML = content
+        wrapper!.innerHTML = content
     } else {
         const appWrapper = document.getElementById('root')
         const wrapper = document.createElement("div");
         wrapper.classList.add("lofty-message-wrapper")
-        appWrapper.appendChild(wrapper)
+        appWrapper!.appendChild(wrapper)
 
         const content = '<div class="lofty-message-box lofty-message-error"><span>'+displayMessage+'</span></div>';
         wrapper.innerHTML = content

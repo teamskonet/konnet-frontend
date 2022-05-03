@@ -9,6 +9,8 @@ import SigninScreen from './views/screens/auth/signin/SigninScreen';
 import SignupScreen from './views/screens/auth/signup/SignupScreen';
 import SetupScreen from './views/screens/auth/setup/SetupScreen';
 import PricingScreen from './views/screens/auth/pricing/PricingScreen';
+import InviteScreen from './views/screens/auth/invite/InviteScreen';
+import MainTabScreen from './views/screens/mainTab/MainTabScreen';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
             <Route path="/signup" element={<SignupScreen />} />
             <Route path="/setup" element={<SetupScreen />} />
             <Route path="/pricing" element={<PricingScreen />} />
+            <Route path="/invite" element={<InviteScreen />} />
+            <Route path="/home" element={<MainTabScreen />} />
           </Routes>
         </ThemeProvider>
       </Router>

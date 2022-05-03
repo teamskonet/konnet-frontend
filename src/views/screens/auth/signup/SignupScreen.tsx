@@ -46,7 +46,7 @@ const SignupScreen: React.FC = () => {
             return navigate("/setup");
         } catch (err: any) {
             setIsLoading(false)
-            Message.error(err?.response.data.error)
+            Message.error(err?.response.data.message)
         }
     }
     return(
@@ -60,7 +60,7 @@ const SignupScreen: React.FC = () => {
             <ColumWrapper>
                 <ColumOne>
                     <h3>Welcome to TeamKonect, the perfect place to connect</h3>
-                    <img src="/assets/img/signup-img.png" alt="video call" />
+                    <img src="/assets/svg/signup-vector.svg" alt="video call" />
                 </ColumOne>
                 <ColumTwo>
                     <div className="google-auth">

@@ -58,7 +58,7 @@ const Header: React.FC = ()  => {
                     </div>
                 </SlideTextWrapper>
                 <SlideImgWrapper>
-                    <img src="/assets/img/slide-banner.png" alt="banner" />
+                    <img src="/assets/svg/banner.svg" alt="banner" />
                 </SlideImgWrapper>
             </SlideWrapper>
         </HeaderWrapper>

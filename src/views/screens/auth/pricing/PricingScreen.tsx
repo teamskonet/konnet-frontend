@@ -36,7 +36,7 @@ const PricingScreen: React.FC = () => {
                             <li><BsCheck2 /> <span>Access to chat spaces.</span></li>
                             <li><BsCheck2 /> <span>Available to 50 persons</span></li>
                         </ul>
-                        <a href="#">Start My Free Trial</a>
+                        <Link to="/invite">Start My Free Trial</Link>
                     </PriceCard>
                     <PriceCard>
                         <div className="head">
@@ -52,7 +52,7 @@ const PricingScreen: React.FC = () => {
                             <li><BsCheck2 /> <span>Access to chat spaces.</span></li>
                             <li><BsCheck2 /> <span>Available to 50 persons</span></li>
                         </ul>
-                        <a href="#">Subscribe</a>
+                        <Link to="/invite">Subscribe</Link>
                     </PriceCard>
                     <PriceCard>
                         <div className="head">
@@ -68,7 +68,7 @@ const PricingScreen: React.FC = () => {
                             <li><BsCheck2 /> <span>Access to chat spaces.</span></li>
                             <li><BsCheck2 /> <span>Available to 50 persons</span></li>
                         </ul>
-                        <a href="#">Subscribe</a>
+                        <Link to="/invite">Subscribe</Link>
                     </PriceCard>
                     <PriceCard>
                         <div className="head">
@@ -80,7 +80,7 @@ const PricingScreen: React.FC = () => {
                         <ul>
                             <li>This package is for comapnies who would love to have full access to the product features.</li>
                         </ul>
-                        <a href="#">Send quote</a>
+                        <Link to="/invite">Send quote</Link>
                     </PriceCard>
                 </PriceCardWrapper>
             </Content>

@@ -210,6 +210,7 @@ export const  ColumTwo = styled.div`
          border-radius: 4px;
          color: #fff;
          margin-top: 30px;
+         cursor: pointer;
      }
 
      .form-meta {
