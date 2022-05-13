@@ -6,11 +6,20 @@ import { MdOutlineMessage, MdOutlinePermContactCalendar } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 import Footer from '../../components/footer/Footer'
 import Header from '../../components/header/Header'
-import { Wrapper, Content, PageTitle, RoomsWrapper, Room, TabContent, LiveRoomWrapper, LiveRoom } from './style'
+import { Wrapper, Content, PageTitle, RoomsWrapper, Room, TabContent, LiveRoomWrapper, LiveRoom, HeadBar,  } from './style'
 
 const DashboardScreen: React.FC = ()  => {
     return (
         <Wrapper>
+            <HeadBar>
+                <div className="banner">
+                    <img src="/assets/svg/logo.svg" alt="logo" />
+                    <Link to="/">TeamKonnect</Link>
+                </div>
+                <div className="head-img">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80" alt="avatar" />
+                </div>
+            </HeadBar>
             <Content>
                 <PageTitle>Hallway</PageTitle>
                 <RoomsWrapper>

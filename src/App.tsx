@@ -11,6 +11,10 @@ import SetupScreen from './views/screens/auth/setup/SetupScreen';
 import PricingScreen from './views/screens/auth/pricing/PricingScreen';
 import InviteScreen from './views/screens/auth/invite/InviteScreen';
 import MainTabScreen from './views/screens/mainTab/MainTabScreen';
+import TabLayout from './views/components/tabLayout/TabLayout';
+import DashboardScreen from './views/screens/dashboard/DashboardScreen';
+import ProjectManagement from './views/screens/projectManagement/ProjectManagement';
+import ChatScreen from './views/screens/chat/ChatScreen';
 
 function App() {
   return (
@@ -23,7 +27,9 @@ function App() {
             <Route path="/setup" element={<SetupScreen />} />
             <Route path="/pricing" element={<PricingScreen />} />
             <Route path="/invite" element={<InviteScreen />} />
-            <Route path="/home" element={<MainTabScreen />} />
+            <Route path="/home" element={<TabLayout><DashboardScreen /></TabLayout>} />
+            <Route path="/chat" element={<TabLayout><ChatScreen /></TabLayout>} />
+            <Route path="/project-management" element={<TabLayout><ProjectManagement /></TabLayout>} />
           </Routes>
         </ThemeProvider>
       </Router>

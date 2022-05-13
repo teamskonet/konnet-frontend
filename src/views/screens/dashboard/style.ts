@@ -1,10 +1,59 @@
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
     background-color: #fff;
     position: relative;
-    z-index: 99;
+    height: 100%;
+    overflow: hidden;
+`;
+
+export const  HeadBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 90px;
+    padding: 0px 8%;
+    top: 0px;
+    left: 0px;
     width: 100%;
+    background-color: #f7f5fa;
+
+    .banner {
+        display: flex;
+        align-items: center;
+
+        img {
+            width: 30px;
+            margin-right: 15px;
+        }
+
+        a {
+            font-size: 17px;
+            color: ${props => props.theme.primaryColor};
+            font-weight: 600;
+        }
+    }
+
+    .head-img {
+        width: 30px;
+        height: 30px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0px 0px 5px 7px rgba(0, 0, 0, 0.05);
+
+        img {
+            display: block;
+            min-width: 100%;
+            min-height: 100%;
+            position: absolute;
+        }
+    }
 `;
 
 export const PageTitle = styled.h3`
@@ -15,12 +64,13 @@ export const PageTitle = styled.h3`
 `;
 
 export const Content = styled.div`
-    padding: 20px 8%;
+    padding: 20px 8% 0px 8%;
     width: 100%;
+    flex: 1;
+    overflow-y: auto;
 `;
 export const RoomsWrapper = styled.div`
     width: 100%;
-
 
     @media screen and (min-width: 880px) {
         display: flex;
