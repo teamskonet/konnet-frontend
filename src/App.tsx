@@ -15,6 +15,7 @@ import TabLayout from './views/components/tabLayout/TabLayout';
 import DashboardScreen from './views/screens/dashboard/DashboardScreen';
 import ProjectManagement from './views/screens/projectManagement/ProjectManagement';
 import ChatScreen from './views/screens/chat/ChatScreen';
+import AnalyticsScreen from './views/screens/projectManagement/analytics/Analytics';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/home" element={<TabLayout><DashboardScreen /></TabLayout>} />
             <Route path="/chat" element={<TabLayout><ChatScreen /></TabLayout>} />
             <Route path="/project-management" element={<TabLayout><ProjectManagement /></TabLayout>} />
+            <Route path="/project-management/analytics" element={<TabLayout><AnalyticsScreen /></TabLayout>} />
           </Routes>
         </ThemeProvider>
       </Router>
