@@ -74,8 +74,8 @@ const ProfileScreen: React.FC = ()  => {
 
 
         dispatch(setUser({...userProfile, profileImg: res.data.avatarUrl}))
-
         setIsUploadingProfileImg(false)
+        Message.success("Profile picture updated successfully")
     }
 
     return (
