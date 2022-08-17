@@ -46,6 +46,7 @@ const InviteScreen: React.FC = () => {
             Message.error(err?.response.data.message)
         }
     }
+
     return (
         <Wrapper>
             <HeadBar>

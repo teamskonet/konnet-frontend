@@ -8,10 +8,15 @@ import AxiosCall from '../../../Utils/axios'
 import { Wrapper, Content, HeadBar, ColumWrapper,  } from './style'
 import Message from "../../components/Message/Index";
 import Loader from '../../components/Loader/Loader'
+import AxiosUpload from '../../../Utils/axios/upload'
+import { useDispatch } from 'react-redux'
+import { setUser } from '../../../actions'
 
 const ProfileScreen: React.FC = ()  => {
     const userProfile: any = useSelector((state: any) => state.user);
     const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const dispatch = useDispatch()
 
 
     const emailRef = useRef<any>(null);
@@ -44,6 +49,34 @@ const ProfileScreen: React.FC = ()  => {
         }
     }
 
+    const [profileImage, setProfileImage] = useState(userProfile.profileImg)
+    const [isUploadingProfileImg, setIsUploadingProfileImg] = useState<boolean>(false)
+
+    const previewProfile =  async (e: any) => {
+        setProfileImage(URL.createObjectURL(e.target.files[0]))
+        const file = e.target.files[0]
+
+        setIsUploadingProfileImg(true)
+        const formData = new FormData();
+        formData.append("avatar",file,);
+
+        console.log("file",file);
+        console.log("name",file.name);
+
+        const res = await AxiosCall({
+            method: "POST",
+            path: "/user/avatar",
+            contentType: "multipart/form-data",
+            data: formData,
+        });
+
+        console.log('response', res)
+
+
+        dispatch(setUser({...userProfile, profileImg: res.data.avatarUrl}))
+
+        setIsUploadingProfileImg(false)
+    }
 
     return (
         <Wrapper>
@@ -58,17 +91,19 @@ const ProfileScreen: React.FC = ()  => {
                     </a>
                 </div>
                 <div className="head-img">
-                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80" alt="avatar" />
+                    <img src={userProfile.profileImg} alt="avatar" />
                 </div>
             </HeadBar>
             <Content>
                 <ColumWrapper>
                     <h3>Profile</h3>
                     <div className="edit-avatar">
-                        <div className="img-cover">
-                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80" alt="avatar" />
-                        </div>
-                        <button className="upload-img">Upload Picture</button>
+                        <label className="img-cover">
+                            {isUploadingProfileImg && <div className="uploading"><Loader topColor="#169DC8" sideColor="#169DC866" /></div>}
+                            <img src={profileImage} alt="avatar" />
+                            <input id="user-avatar" type="file" accept="image/*" onChange={previewProfile} />
+                        </label>
+                        <label htmlFor="user-avatar" className="upload-img">Upload Picture</label>
                     </div>
 
                     <div className="input-row">

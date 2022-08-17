@@ -16,13 +16,13 @@ if (REACT_APP_SERVER_HOST) {
 }
 
 const AxiosCall = async (requestObj) => {
-  const { path, method, data, contentType, version = "", custormBaseURL = null} = requestObj;
+  const { path, method, data, contentType = "application/json", version = "", custormBaseURL = null} = requestObj;
 
   const token = localStorage.getItem("authToken");
   console.log('token: ', token)
 
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": contentType,
     "x-id-key": token
   };
 

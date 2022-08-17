@@ -109,7 +109,7 @@ export const ColumWrapper = styled.div`
         display: flex;
         align-items: center;
         margin-bottom: 15px;
-        
+
 
         .img-cover {
             width: 60px;
@@ -117,15 +117,33 @@ export const ColumWrapper = styled.div`
             border-radius: 50%;
             margin-right: 20px;
             overflow: hidden;
+            position: relative;
+            cursor: pointer;
 
             img {
                 object-fit: cover;
                 min-height: 100%;
                 min-width: 100%;
             }
+
+
+            .uploading {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #0007;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                z-index: 999;
+            }
+
+            input {
+                display: none;
+            }
         }
 
-        button {
+        label:last-of-type {
             display: flex;
             justify-content: center;
             align-items: center;
