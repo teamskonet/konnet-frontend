@@ -12,11 +12,13 @@ import Header from '../../components/header/Header'
 import Analytics from './analytics/Analytics'
 import Message from "../../components/Message/Index";
 import { Wrapper, Content, CardsWrapper, Cards, HeadBar, MenuBar, FloatingBtn, NewProjectModal, NewProjectModalContent, SpacesModal, InviteModal, InviteModalContent  } from './style'
+import Loader from '../../components/Loader/Loader'
 
 const ProjectManagement: React.FC = ()  => {
     const [showMenuModal, setShowMenuModal] = useState<boolean>(false)
     const [showSpaceModal, setShowSpaceModal] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isInviting, setIsInviting] = useState<boolean>(false)
     const [showInviteModal, setShowInviteModal] = useState<boolean>(false)
     const [personalSpace, setPersonalSpace] = useState<boolean>(false)
     const [selectedSpace, setSelectedSpace] = useState<any>(null)
@@ -25,6 +27,16 @@ const ProjectManagement: React.FC = ()  => {
     const inviteModalRef = useRef(null)
     const navigation = useNavigate();
     const [spaces, setSpaces] = useState<any>([])
+    const inviteEmailRef = useRef<any>(null)
+
+    const [projectData, setProjectData] = useState<any>({
+        name: "",
+        description: "",
+        dueDate: "",
+        tasks: [],
+        teamMembers: [],
+        space: ""
+    })
 
     const closeAddNewProjectModal = (e: any) => {
         if (e.target == modalRef.current) {
@@ -46,10 +58,10 @@ const ProjectManagement: React.FC = ()  => {
                 path: `/spaces`
               });
 
-            console.log(res);
             setSpaces(res.data)
             setSelectedSpace(res.data[0])
             setIsLoading(false)
+            getProjects(res.data[0]._id)
             Message.success("Spaces retreived")
         } catch (err: any) {
             setIsLoading(false)
@@ -58,9 +70,149 @@ const ProjectManagement: React.FC = ()  => {
         }
     }
 
+    const [projects, setProjects] = useState([])
+    const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
+    const getProjects = async (spaceId: String) => {
+        setIsFetchingProjects(true)
+
+        try {
+            const res = await AxiosCall({
+                method: "GET",
+                path: `/space/${spaceId}/projects`
+              });
+
+            console.log(res);
+            setProjects(res.data)
+            setIsFetchingProjects(false)
+            Message.success("Projects retreived")
+        } catch (err: any) {
+            setIsFetchingProjects(false)
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
     useEffect(() => {
         getSpaces()
     }, [])
+
+
+    const inviteUserToSpace = async (e:any) => {
+        e.preventDefault()
+        setIsInviting(true)
+
+        console.log("data", {
+            inviteEmail: inviteEmailRef.current.value,
+            spaceId: selectedSpace.spaceId
+        })
+
+        try {
+            const res = await AxiosCall({
+                method: "POST",
+                path: `/space/${selectedSpace._id}/invite`,
+                data: {
+                    inviteEmail: inviteEmailRef.current.value
+                }
+              });
+
+            setIsInviting(false)
+            setShowInviteModal(false)
+            Message.success("User invited successfully")
+        } catch (err: any) {
+            setIsInviting(false)
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false)
+    const createProject = async (e:any) => {
+        e.preventDefault()
+        setIsCreatingProject(true)
+
+        const teamMembers: any = []
+        const tasks: any = []
+
+        for (let index = 0; index < projectData.tasks.length; index++) {
+            const element = projectData.tasks[index];
+            tasks.push({
+                name: element.name,
+                assignedTo: [
+                    element.assignedTo[0]
+                ]
+            })
+        }
+
+        for (let index = 0; index < selectedSpace.members.length; index++) {
+            const element = selectedSpace.members[index];
+            teamMembers.push(element.user._id)
+        }
+
+        let prodjectReqData = {
+            name: projectData.name,
+            description: projectData.description,
+            dueDate: projectData.dueDate,
+            tasks: tasks,
+            teamMembers: teamMembers,
+            space: selectedSpace._id
+        }
+
+        console.log("prodjectReqData: ", prodjectReqData)
+
+        try {
+            const res = await AxiosCall({
+                method: "POST",
+                path: `/project/manager`,
+                data: prodjectReqData
+              });
+
+            console.log(res);
+            setIsCreatingProject(false)
+            setShowAddNewProjectModal(false)
+            getProjects(selectedSpace._id)
+            Message.success("Project created successfully")
+        } catch (err: any) {
+            setIsCreatingProject(false)
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    const deleteMembers = (e: any, memberIndex: number) => {
+        let newSelectedSpace = selectedSpace;
+        console.log("before: ", newSelectedSpace.members)
+        newSelectedSpace.members.splice(memberIndex, 1);
+        console.log("after: ", newSelectedSpace.members)
+        setSelectedSpace({...newSelectedSpace})
+        // e.target.parentNode.remove()
+    }
+
+    const taskInputRef = useRef<any>()
+    const checkListSelectRef = useRef<any>()
+    const assignProjectTask = () => {
+        if (!taskInputRef.current.value.trim()) {
+           return; 
+        }
+        const selectedUser = JSON.parse(checkListSelectRef.current.value);
+        console.log(selectedUser)
+        setProjectData({
+            ...projectData,
+            tasks: [
+                ...projectData.tasks,
+                {
+                    name: taskInputRef.current.value,
+                    user: selectedUser.firstName + " " + selectedUser.lastName,
+                    assignedTo: [
+                        selectedUser._id,
+                    ]
+                },
+            ]
+        })
+
+        taskInputRef.current.value = ""
+    }
+
+
     return (
         <Wrapper>
             <HeadBar>
@@ -78,17 +230,17 @@ const ProjectManagement: React.FC = ()  => {
                         <MdExpandMore />
 
                         <SpacesModal showModal={showSpaceModal}>
-                            {spaces.map((item: any) => {
+                            {spaces.map((item: any, index: number) => {
                                 return (
-                                    <li onClick={() => {setShowMenuModal(!showMenuModal); setShowSpaceModal(false); setSelectedSpace(item)}}>{item.name}</li>
+                                    <li className={item.name == selectedSpace.name ? 'selected' : 'not-selected'} key={index} onClick={() => {setShowMenuModal(!showMenuModal); setShowSpaceModal(false); setSelectedSpace(item); getProjects(item._id)}}>{item.name}</li>
                                 )
                             })}
                         </SpacesModal>
                     </li>
                     <li className="members-sec">
-                        <span>IJ</span>
-                        <span>MV</span>
-                        <span>PD</span>
+                        {selectedSpace?.members.map((item: any, index: number) => {
+                            return <span key={index}>{item.user.firstName[0] + "" + item.user.lastName[0]}</span>
+                        })}
                     </li>
                     <li className="invite-sec" onClick={() => {setShowMenuModal(!showMenuModal); setShowInviteModal(true)}}>
                         <MdOutlinePersonAdd />
@@ -109,20 +261,21 @@ const ProjectManagement: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <CardsWrapper>
-                    {[1,2,3,4,5,6].map((item, index) => {
+                    
+                    {isFetchingProjects ? <Loader topColor="#169DC8" sideColor="#169DC866" /> : projects.map((item: any, index: number) => {
                         return (
                             <Cards key={index} onClick={() => setShowAddNewProjectModal(true)}>
-                                <h1>Cyber security Team <MdOutlineEdit /></h1>
-                                <h5>Due date: <b>21/06/2022</b></h5>
+                                <h1>{item.name} <MdOutlineEdit /></h1>
+                                <h5>Due date: <b>{item.dueDate}</b></h5>
 
                                 <h4>Project description</h4>
 
-                                <span>Verify the securty model for teamkonect is working properly</span>
+                                <span>{item.description}</span>
 
                                 <h4>Team Members</h4>
                                 <ul>
-                                    {selectedSpace == null ? "" : selectedSpace.members.map((item: any) => {
-                                        return <li>{item.firstName + " " + item.lastName}</li>
+                                    {item.teamMembers.map((item: any, index: number) => {
+                                        return <li key={index}>{item.firstName + " " + item.lastName}</li>
                                     })}
                                 </ul>
 
@@ -138,14 +291,29 @@ const ProjectManagement: React.FC = ()  => {
                 <NewProjectModal ref={modalRef} showModal={showAddNewProjectModaql} onClick={(e) => closeAddNewProjectModal(e)}>
                     <NewProjectModalContent>
                         <div className="project-input">
-                            <input type="text" placeholder="Add project name" />
+                            <input type="text" placeholder="Add project name" onChange={(e) => {
+                                setProjectData({
+                                    ...projectData,
+                                    name: e.target.value
+                                })
+                            }} />
                         </div>
                         <div className="date-col">
                             <span>Due date:</span>
-                            <input type="date" name="" id="" value={"21/06/2022"} />
+                            <input type="date" name="" id="" defaultValue={"21/06/2022"} onChange={(e) => {
+                                setProjectData({
+                                    ...projectData,
+                                    dueDate: e.target.value
+                                })
+                            }} />
                         </div>
                         <h4>Project description</h4>
-                        <textarea name=""></textarea>
+                        <textarea name="" onChange={(e) => {
+                                setProjectData({
+                                    ...projectData,
+                                    description: e.target.value
+                                })
+                            }} ></textarea>
 
                         <div className="team-title-col">
                             <h5>Team Members</h5>
@@ -154,36 +322,53 @@ const ProjectManagement: React.FC = ()  => {
 
                         <div className="team-select-col">
                             <ul>
-                                {/* {spaces.members.map((item: any) => {
-                                    return <li><span>{item.firstName + " " + item.lastName}</span><BiTrash /></li>
-                                })} */}
+                                {selectedSpace?.members.map((item: any, index: number) => {
+                                    return <li key={index}><span>{item.user.firstName + " " + item.user.lastName}</span><BiTrash onClick={(e) => deleteMembers(e, index)} /></li>
+                                })}
+                            </ul>
+                        </div>
+
+                        <div className="team-title-col">
+                            <h5>Tasks</h5>
+                            <MdExpandMore />
+                        </div>
+
+                        <div className="team-select-col">
+                            <ul>
+                                {projectData?.tasks.map((item: any, index: number) => {
+                                    return <li key={index}><span>{item.name}</span><span>- {item.user}</span></li>
+                                })}
                             </ul>
                         </div>
 
                         <div className="check-list-sec">
                             <h2>Checklist</h2>
                             <div className="input-col">
-                                <input type="text" placeholder="Write task" />
-                                <select name="" id="">
-                                    <option value="sam"> Jacob</option>
+                                <input ref={taskInputRef} type="text" placeholder="Write task" />
+                                <select ref={checkListSelectRef} name="" id="">
+                                    {selectedSpace?.members.map((item: any, index: number) => {
+                                        return <option key={index} value={JSON.stringify(item.user)}> {item.user.firstName + " " + item.user.lastName}</option>
+                                    })}
                                 </select>
                                 <MdOutlineDateRange />
                             </div>
 
-                            <button className="add-task">Add task</button>
+                            <button onClick={assignProjectTask} className="add-task">Add task</button>
                         </div>
 
-                        <button className="submit" onClick={() => setShowAddNewProjectModal(false)}>Done</button>
+                        <button className="submit" onClick={(e) => createProject(e)}>{isCreatingProject ? <Loader topColor={undefined} sideColor={undefined} /> : "Done"}</button>
                     </NewProjectModalContent>
                 </NewProjectModal>
 
                 <InviteModal ref={inviteModalRef} showModal={showInviteModal} onClick={(e) => closeInviteModal(e)}>
                     <InviteModalContent>
                         <h2>Share</h2>
-                        <input type="text" placeholder="Add email address" />
+                        <input ref={inviteEmailRef} type="text" placeholder="Add email address" />
                         <div className="row">
                             <IoLink />
                             <button onClick={() => setShowInviteModal(false)}>Copy link</button>
+                            <div className="spacer"></div>
+                            <button onClick={(e) => inviteUserToSpace(e)}>{isInviting ? <Loader topColor={undefined} sideColor={undefined} /> : "Invite"}</button>
                         </div>
                     </InviteModalContent>
                 </InviteModal>

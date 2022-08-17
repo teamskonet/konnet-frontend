@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Content, ContentWappper, Footer, Wrapper } from "./styles";
 import { BsCheck2 } from 'react-icons/bs'

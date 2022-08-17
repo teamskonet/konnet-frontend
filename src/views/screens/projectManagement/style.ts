@@ -135,6 +135,7 @@ export const  MenuBar = styled.ul<{showModal: boolean}>`
             color: #fff;
             font-weight: 600;
             font-size: 14px;
+            text-transform: uppercase;
 
             :nth-child(2) {
                 left: 30px;
@@ -586,6 +587,7 @@ export const NewProjectModalContent = styled.div`
                  }
                  svg {
                      font-size: 16px;
+                     cursor: pointer;
                  }
 
                  ::before {
@@ -706,7 +708,16 @@ export const SpacesModal = styled.ul<{showModal: boolean}>`
 
     li {
         padding: 10px 0px;
+        color: #5d5b5b;
         cursor: pointer;
+
+        :first-child {
+            color: #5d5b5b;
+        }
+
+    }
+    li.selected {
+        color: ${props => props.theme.primaryColor} !important;
     }
 `;
 
@@ -779,6 +790,9 @@ export const InviteModalContent = styled.div`
             color: #666666;
             font-size: 30px;
         }
+        .spacer {
+            flex: 1;
+        }
 
         button {
             border: none;
@@ -790,6 +804,19 @@ export const InviteModalContent = styled.div`
             margin-left: 20px;
             border-bottom: 1px solid #145266;
             cursor: pointer;
+
+            :last-child {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: ${props => props.theme.primaryColor};
+                color: #fff;
+                width: 100px;
+                height: 38px;
+                border-radius: 4px;
+                border: none;
+                padding: 0px;
+            }
         }
     }
 `;
