@@ -78,6 +78,9 @@ export const RoomsWrapper = styled.div`
     }
 `;
 export const Room = styled.ul`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     width: 100%;
     padding: 0px 0px;
     background: #3B97D3;
@@ -122,6 +125,7 @@ export const Room = styled.ul`
             font-size: 15px;
             font-weight: 600;
             padding-left: 20px;
+            flex: 1;
         }
     }
 
@@ -173,20 +177,27 @@ export const TabContent = styled.ul`
 
 export const LiveRoomWrapper = styled.ul`
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
     gap: 20px;
 `;
 
 export const LiveRoom = styled.ul`
     width: 100%;
-    max-width: 480px;
+    /* max-width: 480px; */
     border-radius: 20px;
     height: 140px;
     background: linear-gradient(111.88deg, #169DC8 0%, #007BA2 87.25%);
     position: relative;
     padding: 20px;
     overflow: hidden;
+
+    @media screen and (min-width: 720px) {
+        width: calc(50% - 10px);
+    }
+
+    @media screen and (min-width: 960px) {
+        width: calc(33.33% - 13.33px);
+    }
 
     .row {
         display: flex;
