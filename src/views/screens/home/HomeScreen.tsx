@@ -11,8 +11,8 @@ const HomeScreen: React.FC = ()  => {
             <Wrapper>
                 <SectionOneWrapper>
                     <SectionOneContent>
-                        <h1>High quality video, audio <br/>& live brainstorming and meetup spaces</h1>
-                        <h4>Take advantage of our high quality video , audio and chat spaces to discus s, connect and catch up on happeings and build together</h4>
+                        <h1>High-quality video, audio <br/> & live brainstorming and meetup spaces</h1>
+                        <h4>Take advantage of our high-quality video, audio and chat spaces to discuss, connect and catch up on happenings and build together</h4>
                         <a className="join-link" href="#">Join lounge rooms</a>
                         <img src="/assets/img/video-call.png" alt="video call" />
                         <ul>

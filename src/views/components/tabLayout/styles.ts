@@ -34,9 +34,9 @@ export const Footer = styled.footer`
     border-top-right-radius: 15px;
 
     ul {
-     display: flex;
-     align-items: center;
-     flex: 1;
+        display: flex;
+        align-items: center;
+        flex: 1;
         li {
             flex: 1;
             a {

@@ -11,8 +11,7 @@ let baseURL;
 if (REACT_APP_SERVER_HOST) {
   baseURL = `${REACT_APP_SERVER_HOST}/`;
 } else {
-  
-  const host = "https://team-konect.herokuapp.com/v1/user";
+  const host = "https://team-konect.herokuapp.com/v1";
   baseURL = `${host}/`;
 }
 
@@ -20,23 +19,24 @@ const AxiosCall = async (requestObj) => {
   const { path, method, data, contentType, version = "", custormBaseURL = null} = requestObj;
 
   const token = localStorage.getItem("authToken");
-  console.log('fewf token: ', token)
+  console.log('token: ', token)
 
   const headers = {
     "Content-Type": "application/json",
+    "x-id-key": token
   };
 
-  baseURL = "https://team-konect.herokuapp.com/v1/user"
+  baseURL = "https://team-konect.herokuapp.com/v1"
  
 
   const url = version ? `${baseURL}${version}/${path}` : `${baseURL}${path}`;
   try {
     const response = await Axios({ method, url, data, headers, json: true });
-    const result = response && response.data;
+    const result = response && {data: response.data.data, headers: response.headers};
 
     return result;
   } catch (error) {
-    console.log(error.response);
+    console.log(error);
     if (error.response.status === 401) {
       localStorage.setItem("authToken", "");
       window.location.href = "/signin";

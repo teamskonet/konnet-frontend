@@ -35,7 +35,6 @@ export const  HeadBar = styled.div`
         }
     }
 
-
     .stats-sec {
         display: flex;
         justify-content: flex-end;

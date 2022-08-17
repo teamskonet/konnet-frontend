@@ -9,11 +9,15 @@ import AxiosCall from "../../../../Utils/axios";
 import { FaLessThan } from "react-icons/fa";
 import Message from "../../../components/Message/Index";
 import Loader from "../../../components/Loader/Loader";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../../actions";
 
 const SigninScreen: React.FC = () => {
     const [rememberUser, setRememberUser] = useState<boolean>(false)
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const dispatch = useDispatch()
 
     const email = useRef<any>(null);
     const password = useRef<any>(null);
@@ -29,17 +33,28 @@ const SigninScreen: React.FC = () => {
         try {
             const res = await AxiosCall({
                 method: "POST",
-                path: "/login",
+                path: "/user/login",
                 data: {
                     email: email.current.value,
                     password: password.current.value
                 }
               });
 
-            // console.log(res);
+              const userData = {
+                userId: res.data._id,
+                email: res.data.email,
+                firstName: res.data.firstName,
+                lastName: res.data.lastName,
+                profileImg: res.data.avatarUrl,
+                isEmailVerified: res.data.isEmailVerified
+            }
+
+            dispatch(setUser(userData))
+
+            console.log("headers", res.headers["x-id-key"]);
 
             setIsLoading(false)
-            // localStorage.setItem("authToken", res.token)
+            localStorage.setItem("authToken", res.headers["x-id-key"])
             Message.success("Signin success")
             
             return navigate("/home");

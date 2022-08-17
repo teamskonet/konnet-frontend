@@ -45,6 +45,7 @@ export const  HeadBar = styled.div`
         flex: 1;
         margin-right: 20px;
         width: 30px;
+        cursor: pointer;
         img {
             display: block;
             width: 25px;
@@ -102,6 +103,7 @@ export const  MenuBar = styled.ul<{showModal: boolean}>`
             display: flex;
             align-items: center;
             color: #169DC8;
+            position: relative;
             span {
                 font-size: 14px;
                 font-weight: 500;
@@ -665,5 +667,129 @@ export const NewProjectModalContent = styled.div`
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
+    }
+`;
+
+export const SpacesModal = styled.ul<{showModal: boolean}>`
+    display: flex;
+    visibility: ${props => props.showModal ? 'visible' : 'hidden'};
+    justify-content: center;
+    /* align-items: center; */
+    flex-direction: column;
+    position: absolute;
+    padding: 10px 20px;
+    left: 0px;
+    min-width: 180px;
+    background-color: #fff;
+    z-index: 999999999;
+    box-shadow: 0px 0px 20px -5px #ccc;
+    border-radius: 4px;
+
+
+
+    opacity: ${props => props.showModal ? '1' : '0'};
+    top: ${props => props.showModal ? '0px' : '40px'};
+    transition: all 0.3s ease-out;
+
+    /* ::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #0006;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        cursor: pointer;
+        z-index: 2;
+    } */
+
+    li {
+        padding: 10px 0px;
+        cursor: pointer;
+    }
+`;
+
+export const InviteModal = styled.div<{showModal: boolean}>`
+    display: flex;
+    visibility: ${props => props.showModal ? 'visible' : 'hidden'};
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: fixed;
+    padding: 20px;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100vw;
+    z-index: 999999999;
+
+    ::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #0006;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        cursor: pointer;
+        z-index: 2;
+    }
+`;
+export const InviteModalContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 30px 40px;
+    border-radius: 8px;
+    background-color: #fff;
+    position: relative;
+    max-width: 480px;
+    z-index: 99;
+
+    h2 {
+        color: rgba(73, 71, 71, 0.8);
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    input {
+        height: 50px;
+        width: 100%;
+        border-radius: 8px;
+        padding: 0px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: #186DA5;
+        border: 0.5px solid #169DC8;
+
+        ::placeholder {
+            color: rgba(73, 71, 71, 0.8);
+        }
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+
+        svg {
+            color: #666666;
+            font-size: 30px;
+        }
+
+        button {
+            border: none;
+            padding-bottom: 5px;
+            font-weight: 500;
+            background-color: #fff;
+            color: #186DA5;
+            font-size: 16px;
+            margin-left: 20px;
+            border-bottom: 1px solid #145266;
+            cursor: pointer;
+        }
     }
 `;

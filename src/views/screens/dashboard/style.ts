@@ -85,6 +85,16 @@ export const Room = styled.ul`
     border-radius: 20px 20px 0px 0px;
     margin-bottom: 20px;
 
+    :nth-child(2) {
+        background: #FF6652;
+    }
+    :nth-child(3) {
+        background: #2EB67D;
+    }
+    :nth-child(4) {
+        background: #ECB22E;
+    }
+
 
     @media screen and (min-width: 880px) {
         width: calc(25% - 15px);
@@ -162,7 +172,10 @@ export const TabContent = styled.ul`
 `;
 
 export const LiveRoomWrapper = styled.ul`
-
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
 `;
 
 export const LiveRoom = styled.ul`
@@ -170,26 +183,10 @@ export const LiveRoom = styled.ul`
     max-width: 480px;
     border-radius: 20px;
     height: 140px;
-    margin: 0px auto;
-    background-image: url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2071&q=80");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(111.88deg, #169DC8 0%, #007BA2 87.25%);
     position: relative;
     padding: 20px;
-    margin-bottom: 20px;
     overflow: hidden;
-
-    ::before {
-        content: "";
-        width: 100%;
-        height: 100%;
-        background-color: #0006;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        z-index: 1;
-    }
 
     .row {
         display: flex;
@@ -212,8 +209,8 @@ export const LiveRoom = styled.ul`
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    width: 30px;
-                    height: 30px;
+                    width: 50px;
+                    height: 50px;
                     border-radius: 50%;
                     position: relative;
                     overflow: hidden;
@@ -221,21 +218,20 @@ export const LiveRoom = styled.ul`
                     img {
                         min-width: 100%;
                         min-height: 100%;
-                        max-width: unset;
-                        max-height: unset;
+                        object-fit: cover;
                     }
                 }
 
                 .info-sec {
                     padding-left: 10px;
                     h2 {
-                        font-size: 14px;
+                        font-size: 17px;
                         font-weight: 600;
                         margin-bottom: 4px;
                     }
                     h4 {
-                        font-size: 11px;
-                        font-weight: 300;
+                        font-size: 13px;
+                        font-weight: 400;
                     }
                 }
             }
@@ -248,7 +244,6 @@ export const LiveRoom = styled.ul`
                 img {
                     height: 15px;
                     margin-right: 10px;
-                    margin-bottom: 5px;
                 }
 
                 span {
@@ -256,19 +251,23 @@ export const LiveRoom = styled.ul`
                 }
             }
         }
-        .circle {
+        .join-sec {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            align-self: center;
-            background-color: #E7FFF5;
-            height: 70px;
-            width: 70px;
-            border-radius: 50%;
-            span {
-                color: #004F68;
-                font-size: 12px;
-                font-weight: 500;
+            flex: 1;
+            justify-content: flex-end;
+            align-items: flex-end;
+            button {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #fff;
+                width: 80px;
+                height: 26px;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #053D71;
+                border: none;
             }
         }
     }

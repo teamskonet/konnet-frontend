@@ -8,6 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import AxiosCall from "../../../../Utils/axios";
 import Loader from "../../../components/Loader/Loader";
 import Message from "../../../components/Message/Index";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../../actions";
 
 const SignupScreen: React.FC = () => {
     const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false)
@@ -17,10 +19,13 @@ const SignupScreen: React.FC = () => {
     const fullName = useRef<any>(null);
     const password = useRef<any>(null);
 
+    const dispatch = useDispatch()
+
     let navigate = useNavigate();
 
     const signup = async (e: any) => {
         e.preventDefault();
+
         setIsLoading(true)
         console.log("fullName", fullName.current.value);
         console.log("email", email.current.value);
@@ -29,7 +34,7 @@ const SignupScreen: React.FC = () => {
         try {
             const res = await AxiosCall({
                 method: "POST",
-                path: "/register",
+                path: "/user/register",
                 data: {
                     email: email.current.value,
                     password: password.current.value,
@@ -37,10 +42,21 @@ const SignupScreen: React.FC = () => {
                 }
               });
 
-            // console.log(res);
+              
+              const userData = {
+                userId: res.data._id,
+                email: res.data.email,
+                firstName: res.data.firstName,
+                lastName: res.data.lastName,
+                profileImg: res.data.avatarUrl,
+                isEmailVerified: res.data.isEmailVerified
+            }
 
+            dispatch(setUser(userData))
+
+            console.log("headers", res.headers["x-id-key"]);
+            localStorage.setItem("authToken", res.headers["x-id-key"])
             setIsLoading(false)
-            // localStorage.setItem("authToken", res.token)
             Message.success("Account created successfully")
             
             return navigate("/setup");

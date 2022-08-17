@@ -21,11 +21,11 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
             <Footer>
                 <ul>
                     <li><Link to="/home"><HiHome /></Link></li>
-                    <li><Link to="#"><MdOutlineMic /></Link></li>
-                    <li><Link to="#"><img src="/assets/svg/video-call-icon.svg" alt="" /></Link></li>
+                    <li><Link to="/audio-chat"><MdOutlineMic /></Link></li>
+                    <li><Link to="/video-chat"><img src="/assets/svg/video-call-icon.svg" alt="" /></Link></li>
                     <li><Link to="/chat"><img src="/assets/svg/chat-icon.svg" alt="" /></Link></li>
                     <li><Link to="/project-management"><MdOutlinePermContactCalendar /></Link></li>
-                    <li><Link to="#"><img src="/assets/svg/account-icon.svg" alt="" /></Link></li>
+                    <li><Link to="/profile"><img src="/assets/svg/account-icon.svg" alt="" /></Link></li>
                 </ul>
             </Footer>
         </Wrapper>

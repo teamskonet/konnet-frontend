@@ -1,20 +1,26 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Content, HeadBar, PriceCard, PriceCardWrapper, Wrapper } from "./styles";
 import { BsCheck2 } from 'react-icons/bs'
 
 const PricingScreen: React.FC = () => {
+    const location: any = useLocation();
+
+    const navigate = useNavigate()
+
     const [finishedFirstStep, setFinishedFirstStep] = useState<boolean>(false);
 
-    const completeFirstStep = () => {
-        setFinishedFirstStep(true);
+    const selectPlan = (e: any) => {
+        e.preventDefault();
+        // console.log("space id", location.state.spaceId)
+        return navigate("/invite", {state: {spaceId: location.state.spaceId}});
     }
     return (
         <Wrapper>
             <HeadBar>
                 <div className="banner">
                     <img src="/assets/svg/logo.svg" alt="logo" />
-                    <Link to="/">TeamKonnect</Link>
+                    <Link to="/">TeLinkmKonnect</Link>
                 </div>
             </HeadBar>
             <Content finishedFirstStep={finishedFirstStep}>
@@ -36,7 +42,7 @@ const PricingScreen: React.FC = () => {
                             <li><BsCheck2 /> <span>Access to chat spaces.</span></li>
                             <li><BsCheck2 /> <span>Available to 50 persons</span></li>
                         </ul>
-                        <Link to="/invite">Start My Free Trial</Link>
+                        <a href="#" onClick={(e) => selectPlan(e)}>Start My Free Trial</a>
                     </PriceCard>
                     <PriceCard>
                         <div className="head">

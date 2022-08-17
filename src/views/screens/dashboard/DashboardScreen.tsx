@@ -100,10 +100,12 @@ const DashboardScreen: React.FC = ()  => {
                                 <div className="footer-sec">
                                     <img src="/assets/svg/add-users-icon.svg" alt="" />
                                     <span>132 persons listening</span>
+
+
+                                    <div className="join-sec">
+                                        <button>Join</button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="circle">
-                                <span>LIVE</span>
                             </div>
                         </div>
                     </LiveRoom>
