@@ -74,18 +74,19 @@ const ChatScreen: React.FC = ()  => {
         }
         setIsSendingMessage(true)
         try {
+            const reqMessage = messageRef.current.value
             messageRef.current.value = ""
             setMessageList([...messageList, {
-                from: userProfile.userId,
-                to: selectedChat.user._id,
-                message: messageRef.current.value,
-                createdAt: "Now"
+                to: userProfile.userId,
+                from: selectedChat.user._id,
+                message: reqMessage,
+                createdAt:  new Date()
             }])
             const res = await AxiosCall({
                 method: "POST",
                 path: `/conversation`,
                 data: {
-                    message: messageRef.current.value,
+                    message: reqMessage,
                     to: selectedChat.user._id
                 }
               });
@@ -240,7 +241,7 @@ const ChatScreen: React.FC = ()  => {
                                             <MessageBubble left={item.from === userProfile.userId}>
                                                 <p>{item.message}</p>
                                                 <div className="meta">
-                                                    <span className="time">{item.createdAt}</span>
+                                                    <span className="time">{dayjs(item.createdAt).format('MM-Dd HH:mm A')}</span>
                                                 </div>
                                             </MessageBubble>
                                         </MessageBubbleWrapper>
