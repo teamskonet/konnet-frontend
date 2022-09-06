@@ -15,6 +15,7 @@ import { Wrapper, Content, PageTitle, RoomsWrapper, Room, TabContent, LiveRoomWr
 const DashboardScreen: React.FC = ()  => {
     const [selectedRoomFiends, setSelectedRoomFriends] = useState<Array<Number>>([])
     const [isCreatingChatRoom, setIsCreatingChatRoom] = useState<boolean>(false)
+    const [showChatRoomModal, setShowChatRoomModal] = useState<boolean>(false)
     const spaceNameRef = useRef<any>()
     const navigate = useNavigate()
 
@@ -135,7 +136,7 @@ const DashboardScreen: React.FC = ()  => {
                             <span>Create a room</span>
                         </div>
                     </Room>
-                    <Room>
+                    <Room onClick={() => setShowChatRoomModal(true)}>
                         <div className="head">
                             <div className="icon-box">
                                 <MdOutlineMessage />
@@ -198,7 +199,7 @@ const DashboardScreen: React.FC = ()  => {
                     })}
                 </LiveRoomWrapper>
             </Content>
-            <ChatRoomModal />
+            {showChatRoomModal && <ChatRoomModal />}
         </Wrapper>
     )
 }
