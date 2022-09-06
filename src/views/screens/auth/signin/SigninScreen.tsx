@@ -7,7 +7,7 @@ import { HiOutlineLockClosed } from 'react-icons/hi'
 import { Link, useNavigate } from "react-router-dom";
 import AxiosCall from "../../../../Utils/axios";
 import { FaLessThan } from "react-icons/fa";
-import Message from "../../../components/Message/Index";
+import Message from "../../../components/Message/Message";
 import Loader from "../../../components/Loader/Loader";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../../actions";
@@ -54,7 +54,7 @@ const SigninScreen: React.FC = () => {
             console.log("headers", res.headers["x-id-key"]);
 
             setIsLoading(false)
-            localStorage.setItem("authToken", res.headers["x-id-key"])
+            localStorage.setItem("authToken", res.data.token)
             Message.success("Signin success")
             
             return navigate("/home");

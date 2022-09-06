@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Content, Form, HeadBar, Wrapper } from "./styles";
 import { BsCheck2 } from 'react-icons/bs'
 import { useLocation } from "react-router-dom";
-import Message from "../../../components/Message/Index";
+import Message from "../../../components/Message/Message";
 import Loader from "../../../components/Loader/Loader";
 import AxiosCall from "../../../../Utils/axios";
 

@@ -11,7 +11,7 @@ let baseURL;
 if (REACT_APP_SERVER_HOST) {
   baseURL = `${REACT_APP_SERVER_HOST}/`;
 } else {
-  const host = "https://team-konect.herokuapp.com/v1";
+  const host = "https://team-konect-api.herokuapp.com/v1";
   baseURL = `${host}/`;
 }
 
@@ -23,10 +23,10 @@ const AxiosCall = async (requestObj) => {
 
   const headers = {
     "Content-Type": contentType,
-    "x-id-key": token
+    "token": token
   };
 
-  baseURL = "https://team-konect.herokuapp.com/v1"
+  baseURL = "https://team-konect-api.herokuapp.com/v1"
  
 
   const url = version ? `${baseURL}${version}/${path}` : `${baseURL}${path}`;

@@ -283,3 +283,177 @@ export const LiveRoom = styled.ul`
         }
     }
 `;
+
+export const RoomModalWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #2226;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    padding: 20px;
+    z-index: 999999;
+`;
+export const RoomModal = styled.div`
+    padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    width: 100%;
+    max-width: 480px;
+
+    h1 {
+        text-align: center;
+        color: #494747;
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 25px;
+    }
+    .input-field {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid ${props => props.theme.primaryColor};
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+
+        label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #494747;
+        }
+        input {
+            border: none;
+            padding: 8px 0px 0px 0px;
+            font-size: 15px;
+            color: #494747;
+            width: 100%;
+        }
+    }
+    .input-row {
+        display: flex;
+        align-items: flex-end;
+        width: 100%;
+
+        svg {
+            color: ${props => props.theme.primaryColor};
+            font-size: 20px;
+        }
+        input {
+            flex: 1;
+        }
+    }
+
+    .room-link {
+        text-align: center;
+        margin: 10px 0px 20px 0px;
+        span {
+            color: #494747;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        a {
+            color: #2361FF;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    }
+
+    h2 {
+        font-size: 18px;
+        color: #494747;
+        font-weight: 800;
+        margin: 15px;
+    }
+
+    .search-row {
+        display: flex;
+        align-items: center;
+        /* max-width: 320px; */
+        margin-bottom: 20px;
+        .searh-box {
+            display: flex;
+            align-items: center;
+            height: 34px;
+            padding: 0px 10px;
+            flex: 1;
+            border-radius: 17px;
+            border: 1px solid ${props => props.theme.primaryColor};
+
+            svg {
+                color: #494747;
+                font-size: 18px;
+                margin-right: 10px;
+            }
+            input {
+                border: none;
+                color: #494747;
+            }
+        }
+
+        button {
+            margin-left: 20px;
+            color: ${props => props.theme.primaryColor};
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            background-color: transparent;
+        }
+    }
+
+    ul.friend-list {
+        margin-bottom: 20px;
+        max-height: 250px;
+        overflow-y: auto;
+        li {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            cursor: pointer;
+
+            img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            span {
+                flex: 1;
+                padding: 0px 20px;
+                color: #494747;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .check-box {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                border: 1.5px solid ${props => props.theme.primaryColor};
+                margin-right: 10px;
+                color: #fff;
+            }
+            .selected {
+                background-color: ${props => props.theme.primaryColor};
+                color: #fff;
+            }
+        }
+}
+
+    .start-room {
+        background-color: ${props => props.theme.primaryColor};
+        height: 40px;
+        width: 100%;
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+`;

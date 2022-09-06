@@ -7,7 +7,7 @@ import { HiOutlineLockClosed } from 'react-icons/hi'
 import { Link, useNavigate } from "react-router-dom";
 import AxiosCall from "../../../../Utils/axios";
 import Loader from "../../../components/Loader/Loader";
-import Message from "../../../components/Message/Index";
+import Message from "../../../components/Message/Message";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../../actions";
 

@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosCall from "../../../../Utils/axios";
 import { Content, Form, FormContent, FormWrapper, HeadBar, Wrapper } from "./styles";
-import Message from "../../../components/Message/Index";
+import Message from "../../../components/Message/Message";
 import Loader from "../../../components/Loader/Loader";
 
 const SetupScreen: React.FC = () => {

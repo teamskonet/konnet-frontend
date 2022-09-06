@@ -10,7 +10,7 @@ import AxiosCall from '../../../Utils/axios'
 import Footer from '../../components/footer/Footer'
 import Header from '../../components/header/Header'
 import Analytics from './analytics/Analytics'
-import Message from "../../components/Message/Index";
+import Message from "../../components/Message/Message";
 import { Wrapper, Content, CardsWrapper, Cards, HeadBar, MenuBar, FloatingBtn, NewProjectModal, NewProjectModalContent, SpacesModal, InviteModal, InviteModalContent  } from './style'
 import Loader from '../../components/Loader/Loader'
 

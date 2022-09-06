@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { profile } from 'console'
+import React, { useEffect, useRef, useState } from 'react'
 import { AiOutlineHeart, AiOutlineMore, AiOutlinePlus } from 'react-icons/ai'
 import { BiCheckDouble } from 'react-icons/bi'
 import { BsCameraVideo, BsMicMuteFill } from 'react-icons/bs'
@@ -7,17 +8,19 @@ import { IoIosAddCircle, IoIosArrowBack, IoMdFolderOpen } from 'react-icons/io'
 import {  IoVideocamOutline } from 'react-icons/io5'
 import { MdOutlineMessage, MdOutlineMic, MdOutlinePermContactCalendar, MdPersonAddAlt } from 'react-icons/md'
 import { RiArrowDownSLine, RiLock2Line } from 'react-icons/ri'
-import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import dayjs from 'dayjs'
+import { Link, useNavigate } from 'react-router-dom'
+import AxiosCall from '../../../Utils/axios'
+import Message from '../../components/Message/Message'
 import { Wrapper, Content, HeadBar, ChatsViewWrapper, Tab, TabWrapper, ChatCardWrapper, ChatList, ChatCard, MessageViewWrapper, MessageContentWrapper, MessageHeader, ConversationWrapper, HeaderActions, MessageHeaderWrapper, Disclaimer, MessageBubbleWrapper, MessageBubble, ConversationContent, InputSection,  } from './style'
 
 const ChatScreen: React.FC = ()  => {
+    const userProfile: any = useSelector((state: any) => state.user);
     const [showMessageView, setShowMessageView] = useState<boolean>(false)
-    const [selectedChat, setSelectedChat] = useState<ChatListInterface>({
-        img: "https://media.istockphoto.com/photos/beach-woman-picture-id477555600?b=1&k=20&m=477555600&s=170667a&w=0&h=F015v23M3lZkLTsE2NcVRTkfPon5irjBfSbqLt9jxQM=",
-        name: "Programme Management",
-        time: "wedwe",
-        body: "wed"
-    })
+    const navigate = useNavigate()
+    const [friendList, setFriendList] = useState<Array<any>>([])
+    const [selectedChat, setSelectedChat] = useState<any>()
 
     const toggleChatView = (value: boolean) => {
         setShowMessageView(value)
@@ -37,99 +40,114 @@ const ChatScreen: React.FC = ()  => {
             time: "wedwe",
             body: "wed"
         },
-        {
-            img: "https://media.istockphoto.com/photos/man-overlooks-the-scenery-of-the-of-toledo-spain-from-a-bridge-view-picture-id1195487270?b=1&k=20&m=1195487270&s=170667a&w=0&h=YCB_oKw797QfEcS9zXi-0xhis3y0F77KO_FhcVg_mUI=",
-            name: "Jane Cooper",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZSUyMHBpY3R1cmV8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60",
-            name: "Accounting",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3R1cmV8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60",
-            name: "Alex Peacock",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1628890920690-9e29d0019b9b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "Cyber Security",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTR8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "Product Design",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTl8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "Data Analytics",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1629467057571-42d22d8f0cbd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "John Sam",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1521252659862-eec69941b071?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjB8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "Christiano Ronaldo",
-            time: "wedwe",
-            body: "wed"
-        },
-        {
-            img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTd8fHByb2ZpbGUlMjBwaWN0dXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
-            name: "Ramson Noah",
-            time: "wedwe",
-            body: "wed"
-        },
     ]
 
-    const messageList = [
-        {
-            from: true,
-            text: "Hey bro!",
-            time: "09:45pm"
-        },
-        {
-            from: false,
-            text: "Yeah I'm fine",
-            time: "07:30am"
-        },
-        {
-            from: false,
-            text: "How are you doing.",
-            time: "07:30am"
-        },
-        {
-            from: true,
-            text: "I'm cool bro. Did you later send that stuff?",
-            time: "07:50am"
-        },
-        {
-            from: false,
-            text: "Yeah I did the other day",
-            time: "08:00am"
-        },
-        {
-            from: true,
-            text: "Thanks a lot man! btw love the pictures. 😁",
-            time: "now"
-        },
-        {
-            from: false,
-            text: "Yeah no worries",
-            time: "now"
-        },
-    ]
+    const [messageList, setMessageList] = useState<Array<any>>([])
+    const [isFetchingRooms, setIsFetchingRooms] = useState<boolean>(false)
+    const getRooms = async () => {
+        setIsFetchingRooms(true)
+
+        try {
+            const res = await AxiosCall({
+                method: "GET",
+                path: `/rooms`,
+              });
+
+            console.log(res);
+            setIsFetchingRooms(false)
+            Message.success("Rooms fetched successfully")
+        } catch (err: any) {
+            setIsFetchingRooms(false)
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    const [isSendingMessage, setIsSendingMessage] = useState<boolean>(false)
+
+    const messageRef = useRef<any>()
+
+    const sendMessage = async (e: any) => {
+        e.preventDefault()
+        if (!messageRef.current.value.trim()) {
+            return;
+        }
+        setIsSendingMessage(true)
+        try {
+            messageRef.current.value = ""
+            setMessageList([...messageList, {
+                from: userProfile.userId,
+                to: selectedChat.user._id,
+                message: messageRef.current.value,
+                createdAt: "Now"
+            }])
+            const res = await AxiosCall({
+                method: "POST",
+                path: `/conversation`,
+                data: {
+                    message: messageRef.current.value,
+                    to: selectedChat.user._id
+                }
+              });
+
+
+            setIsSendingMessage(false)
+        } catch (err: any) {
+            setIsSendingMessage(false)
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    const getSpaceMembers = async () => {
+        if (!userProfile.spaces.length) {
+            return;
+        }
+        try {
+            const userSpaces = userProfile.spaces
+            const res = await AxiosCall({
+                method: "GET",
+                path: `/space/${userSpaces[0]}/members`,
+            });
+        
+            setFriendList(res.data)
+            console.log("space members: ", res.data)
+        } catch (err: any) {
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    const getConversation = async () => {
+        if (selectedChat == null) {
+            return;
+        }
+        try {
+            const res = await AxiosCall({
+                method: "GET",
+                path: `/conversation/${selectedChat.user._id}`,
+            });
+        
+            setMessageList(res.data)
+            console.log("messages: ", res.data)
+        } catch (err: any) {
+            console.log(err)
+            Message.error(err?.response.data.message)
+        }
+    }
+
+    useEffect(() => {
+        getConversation()
+    }, [selectedChat])
+
+    useEffect(() => {
+        getRooms()
+    }, [])
+
+    useEffect(() => {
+        getSpaceMembers()
+    }, [userProfile.spaces.length])
+    
 
     return (
         <Wrapper>
@@ -153,16 +171,16 @@ const ChatScreen: React.FC = ()  => {
                         </Tab>
                     </TabWrapper>
                     <ChatList>
-                        {chatList.map((item: ChatListInterface, index: React.Key) => {
+                        {friendList.map((item: any, index: React.Key) => {
                             return (
                                 <ChatCardWrapper key={index} onClick={() => {setSelectedChat(item); toggleChatView(true)}}>
                                     <ChatCard>
                                         <div className="img-box">
-                                            <img src={item.img} alt="photo" />
+                                            <img src={item?.user?.avatarUrl} alt="photo" />
                                         </div>
                                         <div className="sec-content">
                                             <div className="head">
-                                                <h3>{item.name}</h3>
+                                                <h3>{item?.user?.firstName} {item?.user?.lastName}</h3>
                                                 <span>07:38 am</span>
                                             </div>
                                             <div className="footer">
@@ -181,7 +199,7 @@ const ChatScreen: React.FC = ()  => {
                 
                 {/* Message View starts here */}
 
-                <MessageViewWrapper showView={showMessageView}>
+                {selectedChat != null && <MessageViewWrapper showView={showMessageView}>
                     <MessageContentWrapper>
                         <MessageHeaderWrapper>
                             <MessageHeader>
@@ -189,11 +207,11 @@ const ChatScreen: React.FC = ()  => {
                                     <IoIosArrowBack />
                                 </div>
                                 <div className="photo-box">
-                                    <img src={selectedChat.img} alt="photo" />
+                                    <img src={selectedChat.user.avatarUrl} alt="photo" />
                                 </div>
                                 <div className="content">
                                     <div className="title">
-                                        <h2>{selectedChat.name}</h2>
+                                        <h2>{selectedChat.user.firstName} {selectedChat.user.lastName}</h2>
                                         <AiOutlineHeart />
                                     </div>
 
@@ -218,11 +236,11 @@ const ChatScreen: React.FC = ()  => {
 
                                 {messageList.map((item: any, index: React.Key) => {
                                     return (
-                                        <MessageBubbleWrapper key={index} left={!item.from}>
-                                            <MessageBubble left={!item.from}>
-                                                <p>{item.text}</p>
+                                        <MessageBubbleWrapper key={index} left={item.from === userProfile.userId}>
+                                            <MessageBubble left={item.from === userProfile.userId}>
+                                                <p>{item.message}</p>
                                                 <div className="meta">
-                                                    <span className="time">{item.time}</span>
+                                                    <span className="time">{item.createdAt}</span>
                                                 </div>
                                             </MessageBubble>
                                         </MessageBubbleWrapper>
@@ -237,13 +255,13 @@ const ChatScreen: React.FC = ()  => {
                             <div className="add-files">
                                 <img src="/assets/svg/add-files-icon.svg" alt="mic icon" />
                             </div>
-                            <input type="text" placeholder="Say Something..." />
+                            <input onKeyPress={(e) => e.key === 'Enter' && sendMessage(e)} ref={messageRef} type="text" placeholder="Say Something..." />
                             <div className="record">
                                 <img src="/assets/svg/mic-icon.svg" alt="mic icon" />
                             </div>
                         </InputSection>
                     </MessageContentWrapper>
-                </MessageViewWrapper>
+                </MessageViewWrapper>}
             </Content>
         </Wrapper>
     )

@@ -3,10 +3,10 @@ import { AiOutlineMail, AiOutlineEyeInvisible, AiOutlineEye } from 'react-icons/
 import { HiOutlineLockClosed } from 'react-icons/hi'
 import { RiUserLine } from 'react-icons/ri'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AxiosCall from '../../../Utils/axios'
 import { Wrapper, Content, HeadBar, ColumWrapper,  } from './style'
-import Message from "../../components/Message/Index";
+import Message from "../../components/Message/Message";
 import Loader from '../../components/Loader/Loader'
 import AxiosUpload from '../../../Utils/axios/upload'
 import { useDispatch } from 'react-redux'
@@ -16,6 +16,8 @@ const ProfileScreen: React.FC = ()  => {
     const userProfile: any = useSelector((state: any) => state.user);
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
+    const navigation = useNavigate()
+
     const dispatch = useDispatch()
 
 
@@ -23,22 +25,68 @@ const ProfileScreen: React.FC = ()  => {
     const firstNameRef = useRef<any>(null);
     const lastNameRef = useRef<any>(null);
 
-    const password = useRef<any>(null);
+    const currentPasswordRef = useRef<any>(null);
+    const newPasswordRef = useRef<any>(null);
+    const confirmPasswordRef = useRef<any>(null);
+
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState<boolean>(false)
+
+    const updatePassword = async (e: any) => {
+        e.preventDefault();
+
+        if (isUpdatingPassword) {
+            return;
+        }
+
+
+        try {
+            if (newPasswordRef.current.value != confirmPasswordRef.current.value) {
+                return Message.error("New passwords don't match")
+            }
+            setIsUpdatingPassword(true)
+            const res = await AxiosCall({
+                method: "PATCH",
+                path: "/user/password",
+                data: {
+                    oldPassword: currentPasswordRef.current.value,
+                    newPassword: newPasswordRef.current.value
+                }
+              });
+
+            setIsUpdatingPassword(false)
+            Message.success("Password updated successfully")
+        } catch (err: any) {
+            setIsUpdatingPassword(false)
+            Message.error(err?.response.data.message)
+        }
+    }
     
     const updateProfile = async (e: any) => {
         e.preventDefault();
 
+        if (isLoading) {
+            return;
+        }
+
         setIsLoading(true)
 
         try {
+            const reqData: {
+                firstName: string,
+                lastName: String,
+                email?: String
+            }  = {
+                firstName: firstNameRef.current.value,
+                lastName: lastNameRef.current.value,
+            }
+            if (userProfile.email != emailRef.current.value) {
+                reqData.email = emailRef.current.value
+                console.log("saved email: ", )
+            }
             const res = await AxiosCall({
                 method: "PATCH",
                 path: "/user/profile",
-                data: {
-                    email: emailRef.current.value,
-                    firstName: firstNameRef.current.value,
-                    lastName: firstNameRef.current.value,
-                }
+                data: reqData
               });
 
             setIsLoading(false)
@@ -51,6 +99,10 @@ const ProfileScreen: React.FC = ()  => {
 
     const [profileImage, setProfileImage] = useState(userProfile.profileImg)
     const [isUploadingProfileImg, setIsUploadingProfileImg] = useState<boolean>(false)
+
+    useEffect(() => {
+        setProfileImage(userProfile.profileImg)
+    }, [userProfile.profileImg])
 
     const previewProfile =  async (e: any) => {
         setProfileImage(URL.createObjectURL(e.target.files[0]))
@@ -78,6 +130,11 @@ const ProfileScreen: React.FC = ()  => {
         Message.success("Profile picture updated successfully")
     }
 
+    const signout = () => {
+        localStorage.removeItem("authToken");
+        return navigation("/signin")
+    }
+
     return (
         <Wrapper>
             <HeadBar>
@@ -85,7 +142,7 @@ const ProfileScreen: React.FC = ()  => {
                     <img src="/assets/svg/logo.svg" alt="logo" />
                     <Link to="/">TeamKonnect</Link>
                 </div>
-                <div className="header-spacer">
+                <div className="header-spacer" onClick={signout}>
                     <a href="#" className="sign-out">
                         <span>Sign  out</span>
                     </a>
@@ -135,20 +192,20 @@ const ProfileScreen: React.FC = ()  => {
                     <h3>Change password</h3>
                     <div className="input-col">
                         <label htmlFor="current-password">Current password:</label>
-                        <input type="password" name="current-password" id="current-password" placeholder="********"/>
+                        <input ref={currentPasswordRef} type="password" name="current-password" id="current-password" placeholder="********"/>
                     </div>
 
                     <div className="input-col">
                         <label htmlFor="new-password">New password:</label>
-                        <input type="password" name="new-password" id="new-password" placeholder="********"/>
+                        <input ref={newPasswordRef} type="password" name="new-password" id="new-password" placeholder="********"/>
                     </div>
 
                     <div className="input-col">
                         <label htmlFor="confirm-password">Confirm password:</label>
-                        <input type="password" name="confirm-password" id="confirm-password" placeholder="********"/>
+                        <input ref={confirmPasswordRef} type="password" name="confirm-password" id="confirm-password" placeholder="********"/>
                     </div>
 
-                    <button className="save-action">Update Passwords</button>
+                    <button onClick={updatePassword} className="save-action">{isUpdatingPassword ? <Loader topColor={undefined} sideColor={undefined} /> : "Update Passwords"}</button>
                 </ColumWrapper>
             </Content>
         </Wrapper>

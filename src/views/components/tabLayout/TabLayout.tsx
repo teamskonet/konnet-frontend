@@ -6,10 +6,40 @@ import { HiHome } from "react-icons/hi";
 import { MdOutlineMic, MdOutlinePermContactCalendar } from "react-icons/md";
 import { FaUserAlt } from "react-icons/fa";
 import useWindowDimensions from "../../../hooks/useWindow";
+import AxiosCall from "../../../Utils/axios";
+import Message from "../Message/Message";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../../actions";
 
 const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
 
+    const userProfile: any = useSelector((state: any) => state.user);
     const { height, width } = useWindowDimensions()
+    const dispatch = useDispatch()
+
+    const fetchProfile = async () => {
+        try {
+            const res = await AxiosCall({
+                method: "GET",
+                path: "/user/me"
+              });
+              console.log(res.data)
+
+            dispatch(setUser({...userProfile,
+                email: res.data.email,
+                firstName: res.data.firstName,
+                lastName: res.data.lastName,
+                profileImg: res.data.avatarUrl,
+                spaces: res.data.spaces
+            }))
+            Message.success("Profile fetched successfully")
+        } catch (err: any) {
+            Message.error(err?.response.data.message)
+        }
+    }
+    useEffect(() => {
+        fetchProfile()
+    }, [])
 
     return (
         <Wrapper height={height}>

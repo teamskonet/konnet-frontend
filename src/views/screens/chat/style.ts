@@ -130,6 +130,7 @@ export const ChatList = styled.div`
 export const ChatCardWrapper = styled.div`
     width: 100%;
     max-width: 480px;
+    cursor: pointer;
 `;
 
 export const ChatCard = styled.div`
