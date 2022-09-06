@@ -87,6 +87,7 @@ export const Room = styled.ul`
     box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.25);
     border-radius: 20px 20px 0px 0px;
     margin-bottom: 20px;
+    cursor: pointer;
 
     :nth-child(2) {
         background: #FF6652;
