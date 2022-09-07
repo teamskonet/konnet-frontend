@@ -19,6 +19,8 @@ const DashboardScreen: React.FC = ()  => {
     const spaceNameRef = useRef<any>()
     const navigate = useNavigate()
 
+    const chatModalRef = useRef<any>()
+
     const createChatRoom = async (e:any) => {
         e.preventDefault()
         setIsCreatingChatRoom(true)
@@ -43,8 +45,14 @@ const DashboardScreen: React.FC = ()  => {
         }
     }
 
+    const closeChatRoomModal = (e: any) =>{
+        if (e.target == chatModalRef.current) {
+            setShowChatRoomModal(false)
+        }
+    }
+
     const ChatRoomModal = () => {
-        return <RoomModalWrapper>
+        return <RoomModalWrapper ref={chatModalRef} onClick={closeChatRoomModal}>
             <RoomModal>
                 <h1>Chat Room</h1>
                 <div className="input-field">

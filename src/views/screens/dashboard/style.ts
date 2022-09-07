@@ -295,6 +295,7 @@ export const RoomModalWrapper = styled.div`
     position: fixed;
     padding: 20px;
     z-index: 999999;
+    cursor: pointer;
 `;
 export const RoomModal = styled.div`
     padding: 20px;
@@ -302,6 +303,7 @@ export const RoomModal = styled.div`
     background: #fff;
     width: 100%;
     max-width: 480px;
+    cursor: default;
 
     h1 {
         text-align: center;
