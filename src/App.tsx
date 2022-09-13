@@ -1,5 +1,5 @@
 import './App.css'
-import React from 'react';
+import React, { useEffect } from 'react';
 import HomeScreen from './views/screens/home/HomeScreen';
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from './views/styles/theme';
@@ -19,8 +19,15 @@ import AnalyticsScreen from './views/screens/projectManagement/analytics/Analyti
 import VideoChatScreen from './views/screens/videoChat/VideoChatScreen';
 import AudioChatScreen from './views/screens/audioChat/AudioChatScreen';
 import ProfileScreen from './views/screens/profile/ProfileScreen';
+import useSocket from './hooks/useSocket';
 
 function App() {
+  const { isConnected } = useSocket()
+
+  useEffect(() => {
+    console.log("conection status: ", isConnected)
+  }, [isConnected])
+
   return (
       <Router>
         <ThemeProvider theme={lightTheme}>

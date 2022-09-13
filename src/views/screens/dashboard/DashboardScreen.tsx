@@ -4,7 +4,9 @@ import { BsMicMuteFill } from 'react-icons/bs'
 import { IoIosAddCircle } from 'react-icons/io'
 import {  IoSearchOutline, IoVideocamOutline } from 'react-icons/io5'
 import { MdArrowForwardIos, MdOutlineMessage, MdOutlinePermContactCalendar } from 'react-icons/md'
+import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import useSocket from '../../../hooks/useSocket'
 import AxiosCall from '../../../Utils/axios'
 import Footer from '../../components/footer/Footer'
 import Header from '../../components/header/Header'
@@ -15,11 +17,19 @@ import { Wrapper, Content, PageTitle, RoomsWrapper, Room, TabContent, LiveRoomWr
 const DashboardScreen: React.FC = ()  => {
     const [selectedRoomFiends, setSelectedRoomFriends] = useState<Array<Number>>([])
     const [isCreatingChatRoom, setIsCreatingChatRoom] = useState<boolean>(false)
+    const [isCreatingVideoRoom, setIsCreatingVideoRoom] = useState<boolean>(false)
     const [showChatRoomModal, setShowChatRoomModal] = useState<boolean>(false)
+    const [showVideoRoomModal, setShowVideoRoomModal] = useState<boolean>(false)
+
+
+    const userProfile: any = useSelector((state: any) => state.user);
+    
     const spaceNameRef = useRef<any>()
     const navigate = useNavigate()
+    const { socket, sendPing } = useSocket()
 
     const chatModalRef = useRef<any>()
+    const viedoModalRef = useRef<any>()
 
     const createChatRoom = async (e:any) => {
         e.preventDefault()
@@ -45,9 +55,24 @@ const DashboardScreen: React.FC = ()  => {
         }
     }
 
+    const createVideoRoom = (e: any) => {
+        e.preventDefault()
+        socket.emit("join-video-room", 
+            "newRoomId",
+            userProfile.userId
+        )
+        return navigate("/video-chat")
+    }
+
     const closeChatRoomModal = (e: any) =>{
         if (e.target == chatModalRef.current) {
             setShowChatRoomModal(false)
+        }
+    }
+
+    const closeVideoRoomModal = (e: any) =>{
+        if (e.target == viedoModalRef.current) {
+            setShowVideoRoomModal(false)
         }
     }
 
@@ -81,7 +106,7 @@ const DashboardScreen: React.FC = ()  => {
                 </div>
                 <ul className="friend-list">
                     {[1,2,3,4,5].map((item, index) => {
-                        return <li onClick={() => {
+                        return <li key={index} onClick={() => {
                             if (!selectedRoomFiends.includes(item)) {
                                 setSelectedRoomFriends([...selectedRoomFiends, item])
                             } else {
@@ -100,6 +125,59 @@ const DashboardScreen: React.FC = ()  => {
                     })}
                 </ul>
                 <button onClick={createChatRoom} className="start-room">{isCreatingChatRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
+            </RoomModal>
+        </RoomModalWrapper>
+    }
+
+    const VideoRoomModal = () => {
+        return <RoomModalWrapper ref={viedoModalRef} onClick={closeVideoRoomModal}>
+            <RoomModal>
+                <h1>Video Room</h1>
+                <div className="input-field">
+                    <label htmlFor="msg-room-title">Title</label>
+                    <input ref={spaceNameRef} id="msg-room-title" type="text" placeholder="Enter room title" />
+                </div>
+                <div className="input-field">
+                    <label htmlFor="msg-room-title">Start time</label>
+                    <div className="input-row">
+                        <input id="msg-room-title" disabled={true} type="text" placeholder="Enter room title" defaultValue={"Now"} />
+                        <MdArrowForwardIos />
+                    </div>
+                </div>
+                <div className="room-link">
+                    <span>Anyone with the link can join</span>
+                    <a href="#">Edit</a>
+                </div>
+
+                <h2>Invite Friends</h2>
+                <div className="search-row">
+                    <div className="searh-box">
+                        <IoSearchOutline />
+                        <input type="text" />
+                    </div>
+                    <button>cancel</button>
+                </div>
+                <ul className="friend-list">
+                    {[1,2,3,4,5].map((item, index) => {
+                        return <li key={index} onClick={() => {
+                            if (!selectedRoomFiends.includes(item)) {
+                                setSelectedRoomFriends([...selectedRoomFiends, item])
+                            } else {
+                                let selectedList = selectedRoomFiends
+                                let itemIndex = selectedList.indexOf(item);
+                                selectedList.splice(itemIndex, 1)
+                                setSelectedRoomFriends([...selectedList])
+                            }
+                        }}>
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2ZpbGV8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=900&q=60" alt="" />
+                            <span>John Doe</span>
+                            <div className={`check-box  ${selectedRoomFiends.includes(item) ? "selected" : ""}`}>
+                                {selectedRoomFiends.includes(item) && <BiCheck />}
+                            </div>
+                        </li>
+                    })}
+                </ul>
+                <button onClick={createVideoRoom} className="start-room">{isCreatingVideoRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
             </RoomModal>
         </RoomModalWrapper>
     }
@@ -131,7 +209,7 @@ const DashboardScreen: React.FC = ()  => {
                             <span>Create a room</span>
                         </div>
                     </Room>
-                    <Room>
+                    <Room onClick={() => setShowVideoRoomModal(true)}>
                         <div className="head">
                             <div className="icon-box">
                                 <IoVideocamOutline />
@@ -208,6 +286,7 @@ const DashboardScreen: React.FC = ()  => {
                 </LiveRoomWrapper>
             </Content>
             {showChatRoomModal && <ChatRoomModal />}
+            {showVideoRoomModal && <VideoRoomModal />}
         </Wrapper>
     )
 }

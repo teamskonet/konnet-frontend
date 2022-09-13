@@ -1,14 +1,47 @@
-import React from 'react'
-import { BsMicMuteFill } from 'react-icons/bs'
-import { IoIosAddCircle } from 'react-icons/io'
-import {  IoAdd, IoVideocamOutline } from 'react-icons/io5'
-import { MdOutlineMessage, MdOutlinePermContactCalendar } from 'react-icons/md'
+import React, { useEffect, useRef, useState } from 'react'
+import {  IoAdd } from 'react-icons/io5'
 import { Link } from 'react-router-dom'
-import Footer from '../../components/footer/Footer'
-import Header from '../../components/header/Header'
+import useSocket from '../../../hooks/useSocket'
 import { Wrapper, Content, HeadBar, VideoWrapper, CallBlock, AddPeople, UserCallBlock,  } from './style'
 
 const VideoChatScreen: React.FC = ()  => {
+    const { socket, sendPing } = useSocket()
+    const myVideoRef = useRef<any>()
+
+    const handleVideoRoom = () => {
+        console.log("started video init")
+        const myVideo = document.createElement('video')
+        myVideo.muted = true;
+
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        }).then(stream => {
+            addVideoStream(myVideo, stream)
+        })
+        socket.on('user-connected', userId => {
+            console.log("user connected: ", userId)
+        })
+    }
+
+    
+
+
+    const addVideoStream = (video: any, stream: any) => {
+        const videoWrapper: any = document.querySelector('.video-section')
+        video.srcObject = stream
+        video.addEventListener('loadedmetadata', () => {
+            video.play()
+
+            console.log("video playing ...")
+        })
+        videoWrapper.append(video)
+        console.log("ended video init")
+    }
+
+    useEffect(() => {
+        handleVideoRoom()
+    }, [])
     return (
         <Wrapper>
             <HeadBar>
@@ -21,8 +54,8 @@ const VideoChatScreen: React.FC = ()  => {
                 </div>
             </HeadBar>
             <Content>
-                <VideoWrapper>
-                    <CallBlock>
+                <VideoWrapper className="video-section">
+                    {/* <CallBlock>
                         <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
                     </CallBlock>
@@ -40,7 +73,7 @@ const VideoChatScreen: React.FC = ()  => {
                     </CallBlock>
                     <UserCallBlock>
                         <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
-                    </UserCallBlock>
+                    </UserCallBlock> */}
                     <AddPeople>
                         <IoAdd />
                         <span>Add people</span>

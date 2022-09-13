@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../actions";
 
 const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
-
     const userProfile: any = useSelector((state: any) => state.user);
     const { height, width } = useWindowDimensions()
     const dispatch = useDispatch()
@@ -26,6 +25,7 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
               console.log(res.data)
 
             dispatch(setUser({...userProfile,
+                userId: res.data._id,
                 email: res.data.email,
                 firstName: res.data.firstName,
                 lastName: res.data.lastName,
