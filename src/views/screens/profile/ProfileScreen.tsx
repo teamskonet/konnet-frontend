@@ -24,6 +24,8 @@ const ProfileScreen: React.FC = ()  => {
     const emailRef = useRef<any>(null);
     const firstNameRef = useRef<any>(null);
     const lastNameRef = useRef<any>(null);
+    const taglineRef = useRef<any>(null);
+    const phoneRef = useRef<any>(null);
 
     const currentPasswordRef = useRef<any>(null);
     const newPasswordRef = useRef<any>(null);
@@ -74,10 +76,14 @@ const ProfileScreen: React.FC = ()  => {
             const reqData: {
                 firstName: string,
                 lastName: String,
+                tagline: String,
+                phoneNumber: String,
                 email?: String
             }  = {
                 firstName: firstNameRef.current.value,
                 lastName: lastNameRef.current.value,
+                tagline: taglineRef.current.value,
+                phoneNumber: phoneRef.current.value,
             }
             if (userProfile.email != emailRef.current.value) {
                 reqData.email = emailRef.current.value
@@ -175,15 +181,15 @@ const ProfileScreen: React.FC = ()  => {
                     </div>
                     <div className="input-col">
                         <label htmlFor="role">Tagline:</label>
-                        <input type="text" name="role" id="role" placeholder="Ex: Sales Manager"/>
+                        <input ref={taglineRef} type="text" name="role" id="role" placeholder="Ex: Sales Manager"/>
                     </div>
                     <div className="input-col">
                         <label htmlFor="email">Email:</label>
                         <input ref={emailRef} type="text" name="email" id="email" placeholder="Ex: mente@email.com" defaultValue={userProfile.email}/>
                     </div>
                     <div className="input-col">
-                        <label htmlFor="phone-number">Phone name</label>
-                        <input type="text" name="phone-number" id="phone-number" placeholder="Ex: 08012 3323 228"/>
+                        <label htmlFor="phone-number">Phone number</label>
+                        <input ref={phoneRef} type="text" name="phone-number" id="phone-number" placeholder="Ex: 08012 3323 228"/>
                     </div>
 
                     <button onClick={updateProfile} className="save-action">{isLoading ? <Loader topColor={undefined} sideColor={undefined} /> : "Save Profile"}</button>

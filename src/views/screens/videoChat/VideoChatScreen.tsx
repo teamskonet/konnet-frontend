@@ -18,10 +18,17 @@ const VideoChatScreen: React.FC = ()  => {
             audio: true
         }).then(stream => {
             addVideoStream(myVideo, stream)
+
+
+            socket.on('user-connected', userId => {
+                console.log("user connected: ", userId)
+                connectToNewUser(userId, stream)
+            })
         })
-        socket.on('user-connected', userId => {
-            console.log("user connected: ", userId)
-        })
+    }
+
+    const connectToNewUser = (userId: String, stream: any) => {
+
     }
 
     
@@ -37,6 +44,7 @@ const VideoChatScreen: React.FC = ()  => {
         })
         videoWrapper.append(video)
         console.log("ended video init")
+        
     }
 
     useEffect(() => {

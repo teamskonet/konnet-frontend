@@ -19,7 +19,6 @@ const AxiosCall = async (requestObj) => {
   const { path, method, data, contentType = "application/json", version = "", custormBaseURL = null} = requestObj;
 
   const token = localStorage.getItem("authToken");
-  console.log('token: ', token)
 
   const headers = {
     "Content-Type": contentType,

@@ -77,8 +77,8 @@ const ChatScreen: React.FC = ()  => {
             const reqMessage = messageRef.current.value
             messageRef.current.value = ""
             setMessageList([...messageList, {
-                to: userProfile.userId,
-                from: selectedChat.user._id,
+                from: userProfile.userId,
+                to: selectedChat._id,
                 message: reqMessage,
                 createdAt:  new Date()
             }])
@@ -87,7 +87,7 @@ const ChatScreen: React.FC = ()  => {
                 path: `/conversation`,
                 data: {
                     message: reqMessage,
-                    to: selectedChat.user._id
+                    to: selectedChat._id
                 }
               });
 
@@ -126,7 +126,7 @@ const ChatScreen: React.FC = ()  => {
         try {
             const res = await AxiosCall({
                 method: "GET",
-                path: `/conversation/${selectedChat.user._id}`,
+                path: `/conversation/${selectedChat._id}`,
             });
         
             setMessageList(res.data)
@@ -172,16 +172,16 @@ const ChatScreen: React.FC = ()  => {
                         </Tab>
                     </TabWrapper>
                     <ChatList>
-                        {friendList.map((item: any, index: React.Key) => {
+                        {userProfile.friends.map((item: any, index: React.Key) => {
                             return (
                                 <ChatCardWrapper key={index} onClick={() => {setSelectedChat(item); toggleChatView(true)}}>
                                     <ChatCard>
                                         <div className="img-box">
-                                            <img src={item?.user?.avatarUrl} alt="photo" />
+                                            <img src={item?.avatarUrl} alt="photo" />
                                         </div>
                                         <div className="sec-content">
                                             <div className="head">
-                                                <h3>{item?.user?.firstName} {item?.user?.lastName}</h3>
+                                                <h3>{item?.firstName} {item?.lastName}</h3>
                                                 <span>07:38 am</span>
                                             </div>
                                             <div className="footer">
@@ -208,11 +208,11 @@ const ChatScreen: React.FC = ()  => {
                                     <IoIosArrowBack />
                                 </div>
                                 <div className="photo-box">
-                                    <img src={selectedChat.user.avatarUrl} alt="photo" />
+                                    <img src={selectedChat.avatarUrl} alt="photo" />
                                 </div>
                                 <div className="content">
                                     <div className="title">
-                                        <h2>{selectedChat.user.firstName} {selectedChat.user.lastName}</h2>
+                                        <h2>{selectedChat.firstName} {selectedChat.lastName}</h2>
                                         <AiOutlineHeart />
                                     </div>
 
@@ -237,8 +237,8 @@ const ChatScreen: React.FC = ()  => {
 
                                 {messageList.map((item: any, index: React.Key) => {
                                     return (
-                                        <MessageBubbleWrapper key={index} left={item.from === userProfile.userId}>
-                                            <MessageBubble left={item.from === userProfile.userId}>
+                                        <MessageBubbleWrapper key={index} left={item.to === userProfile.userId}>
+                                            <MessageBubble left={item.to === userProfile.userId}>
                                                 <p>{item.message}</p>
                                                 <div className="meta">
                                                     <span className="time">{dayjs(item.createdAt).format('MM-Dd HH:mm A')}</span>

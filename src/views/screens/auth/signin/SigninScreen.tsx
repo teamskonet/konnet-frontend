@@ -40,18 +40,19 @@ const SigninScreen: React.FC = () => {
                 }
               });
 
-              const userData = {
+            const userData = {
                 userId: res.data._id,
                 email: res.data.email,
                 firstName: res.data.firstName,
                 lastName: res.data.lastName,
                 profileImg: res.data.avatarUrl,
-                isEmailVerified: res.data.isEmailVerified
+                isEmailVerified: res.data.isEmailVerified,
+                friends: res.data.friends
             }
 
             dispatch(setUser(userData))
 
-            console.log("headers", res.headers["x-id-key"]);
+            console.log("response: ", res.data);
 
             setIsLoading(false)
             localStorage.setItem("authToken", res.data.token)
