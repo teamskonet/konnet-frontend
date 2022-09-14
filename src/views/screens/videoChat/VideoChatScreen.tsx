@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { BsCameraVideo, BsMicMute } from 'react-icons/bs'
+import { HiOutlinePhone } from 'react-icons/hi'
 import {  IoAdd } from 'react-icons/io5'
+import { MdPresentToAll } from 'react-icons/md'
+import {  VscRecord } from 'react-icons/vsc'
 import { Link } from 'react-router-dom'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, CallBlock, AddPeople, UserCallBlock,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, CallBlock, AddPeople, UserCallBlock, ControlItem, ControlWrapper,  } from './style'
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
@@ -82,6 +86,23 @@ const VideoChatScreen: React.FC = ()  => {
                     <UserCallBlock>
                         <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
                     </UserCallBlock> */}
+                    <ControlWrapper>
+                        <ControlItem>
+                            <VscRecord />
+                        </ControlItem>
+                        <ControlItem>
+                            <BsMicMute />
+                        </ControlItem>
+                        <ControlItem>
+                            <MdPresentToAll />
+                        </ControlItem>
+                        <ControlItem>
+                            <BsCameraVideo />
+                        </ControlItem>
+                        <ControlItem>
+                            <HiOutlinePhone />
+                        </ControlItem>
+                    </ControlWrapper>
                     <AddPeople>
                         <IoAdd />
                         <span>Add people</span>

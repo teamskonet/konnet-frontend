@@ -144,3 +144,38 @@ export const AddPeople = styled.div`
         margin-right: 4px;
     }
 `;
+
+export const ControlWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+`;
+export const ControlItem= styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(40px);
+    border-radius: 8px;
+    cursor: pointer;
+
+    :first-child {
+        color: #F24E1E;
+    }
+    :last-child {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: #fff;
+        background-color: #FF3459;
+        rotate: 135deg;
+    }
+`;
