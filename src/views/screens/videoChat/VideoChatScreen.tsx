@@ -1,59 +1,323 @@
+import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
-import { BsCameraVideo, BsMicMute } from 'react-icons/bs'
+import { BsCameraVideo, BsCameraVideoOff, BsMic, BsMicMute } from 'react-icons/bs'
 import { HiOutlinePhone } from 'react-icons/hi'
 import {  IoAdd } from 'react-icons/io5'
 import { MdPresentToAll } from 'react-icons/md'
 import {  VscRecord } from 'react-icons/vsc'
-import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { Link, useLocation } from 'react-router-dom'
+import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, CallBlock, AddPeople, UserCallBlock, ControlItem, ControlWrapper,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper,  } from './style'
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
-    const myVideoRef = useRef<any>()
+    // const [hasStartedVideoSession, setHasStartedVideoSession] = useState<boolean>(false)
+    const location: any = useLocation();
+    const userProfile: any = useSelector((state: any) => state.user);
+    const [callSettingsState, setCallSettingsState] = useState<{
+        video: boolean,
+        audio: boolean
+    }>({
+        video: true,
+        audio: true,
+    })
+    const query = useQuery();
+    let roomId = query.get('room')
+    // const roomId = location.state.roomId
+    let isRoomOwner = false;
 
-    const handleVideoRoom = () => {
-        console.log("started video init")
-        const myVideo = document.createElement('video')
-        myVideo.muted = true;
-
-        navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-        }).then(stream => {
-            addVideoStream(myVideo, stream)
 
 
-            socket.on('user-connected', userId => {
-                console.log("user connected: ", userId)
-                connectToNewUser(userId, stream)
-            })
-        })
+    const chekForVideoRoom = async () => {
+        if (location?.state?.owner) {
+            isRoomOwner = true
+            startWebCam()
+            return;
+        }
+
+        const res = await axios.get("http://localhost:4000/v1/room/video/"+ roomId)
+        console.log("checked room: ", res.data)
+
+        if (res.data.data.userId == userProfile.userId) {
+            isRoomOwner = true
+
+            startWebCam()
+            
+        } else {
+            isRoomOwner = false
+            answerCall(res.data.data.offer)
+        }
     }
 
-    const connectToNewUser = (userId: String, stream: any) => {
 
-    }
+
+
+    console.log("roomId: ", roomId)
+    // const myVideoRef = useRef<any>()
+
+    // const handleVideoRoom = () => {
+    //     console.log("started video init")
+    //     const myVideo = document.createElement('video')
+    //     myVideo.muted = true;
+
+    //     navigator.mediaDevices.getUserMedia({
+    //         video: true,
+    //         audio: true
+    //     }).then(stream => {
+    //         addVideoStream(myVideo, stream)
+
+
+    //         socket.on('user-connected', userId => {
+    //             console.log("user connected: ", userId)
+    //             connectToNewUser(userId, stream)
+    //         })
+    //     })
+    // }
+
+    // const connectToNewUser = (userId: String, stream: any) => {
+
+    // }
 
     
 
 
-    const addVideoStream = (video: any, stream: any) => {
-        const videoWrapper: any = document.querySelector('.video-section')
-        video.srcObject = stream
-        video.addEventListener('loadedmetadata', () => {
-            video.play()
+    // const addVideoStream = (video: any, stream: any) => {
+    //     const videoWrapper: any = document.querySelector('.video-section')
+    //     video.srcObject = stream
+    //     video.addEventListener('loadedmetadata', () => {
+    //         video.play()
 
-            console.log("video playing ...")
+    //         console.log("video playing ...")
+    //     })
+    //     videoWrapper.append(video)
+    //     console.log("ended video init")
+        
+    // }
+
+    const servers = {
+        iceServers: [
+          {
+            urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+          },
+        ],
+        iceCandidatePoolSize: 10,
+    };
+    const pc = new RTCPeerConnection(servers);
+    let localStream: MediaStream | null = null;
+    let remoteStream: MediaStream | null = null;
+    const offerCandidates = []
+    const answerCandidates = []
+
+    const answerCall = async (offer: any) => {
+        console.log("caller offerCandidate: ", offer)
+        const videoWrapper = document.querySelector('.video-section')
+        const myVideo = document.createElement('video')
+        const remoteVideo = document.createElement('video')
+        myVideo.muted = true;
+        remoteVideo.muted = false;
+
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+        remoteStream = new MediaStream()
+
+        localStream.getTracks().forEach((track) => {
+            //  if (!callSettingsState.audio) {
+            //     if(track.kind == "audio") {
+            //         track.enabled = false
+            //     }
+            // }
+
+            // if (!callSettingsState.video) {
+            //     if(track.kind == "video") {
+            //         track.enabled = false
+            //     }
+            // }
+
+            console.log("answer streaming local video")
+
+            pc.addTrack(track, localStream!);
+            
+        });
+        pc.ontrack = event => {
+            event.streams[0].getTracks().forEach(track => {
+                remoteStream?.addTrack(track);
+            });
+        }
+
+
+        myVideo.srcObject = localStream
+        myVideo.addEventListener('loadedmetadata', () => {
+            myVideo.play()
+
+            console.log("local video playing ...")
         })
-        videoWrapper.append(video)
-        console.log("ended video init")
+
+        remoteVideo.srcObject = remoteStream
+        remoteVideo.addEventListener('loadedmetadata', () => {
+            remoteVideo.play()
+
+            console.log("remote video playing ...")
+        })
+
+        videoWrapper?.append(myVideo)
+        videoWrapper?.append(remoteVideo)
+
+
+        pc.onicecandidate = event => {
+            if (event.candidate) {
+                answerCandidates.push(event.candidate.toJSON())
+                socket.emit("add-answer-candidate", roomId, event.candidate.toJSON())
+            }
+        }
+        const offerDescription = offer
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription))
+
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
+
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp
+        }
+        socket.emit("answered-call", roomId, answer)
+        socket.on('user-added-offer-candidate', (offerCandidate) => {
+            console.log("user-added-offer-candidate: ", offerCandidate)
+            const candidate = new RTCIceCandidate(offerCandidate)
+            pc.addIceCandidate(candidate)
+        })
+    }
+
+    const togggleVideo = async () => {
+        let videoTrack =  localStream?.getTracks().find(track => track.kind == 'video');
+
+        console.log("videoTrack: ", videoTrack)
+
+        if (videoTrack?.enabled) {
+            videoTrack.enabled = false;
+            setCallSettingsState({...callSettingsState, video: false})
+        } else {
+            videoTrack!.enabled = true;
+            setCallSettingsState({...callSettingsState, video: true})
+        }
+    }
+    
+    const togggleAudio = () => {
+        let audioTrack = localStream?.getTracks().find(track => track.kind == 'audio');
+
+        if (audioTrack?.enabled) {
+            audioTrack.enabled = false;
+            setCallSettingsState({...callSettingsState, audio: false})
+        } else {
+            audioTrack!.enabled = true;
+            setCallSettingsState({...callSettingsState, audio: true})
+        }
+    }
+
+    const startWebCam = async () => {
+        const videoWrapper = document.querySelector('.video-section')
+        const myVideo = document.createElement('video')
+        const remoteVideo = document.createElement('video')
+        myVideo.muted = true;
+        remoteVideo.muted = false;
+
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+        remoteStream = new MediaStream()
+
+        localStream.getTracks().forEach((track) => {
+            pc.addTrack(track, localStream!);
+        });
+
+        pc.ontrack = event => {
+            console.log("remote event: ", event)
+            event.streams[0].getTracks().forEach(track => {
+                console.log("remote streaming: ", track)
+                remoteStream?.addTrack(track);
+            });
+        }
+    
+        myVideo.srcObject = localStream
+        myVideo.addEventListener('loadedmetadata', () => {
+            myVideo.play()
+        })
+
+        remoteVideo.srcObject = remoteStream
+        remoteVideo.addEventListener('loadedmetadata', () => {
+            remoteVideo.play()
+        })
+
+        videoWrapper?.append(myVideo)
+        videoWrapper?.append(remoteVideo)
+
+       
+
+        pc.onicecandidate = event => {
+            if (event.candidate) {
+                offerCandidates.push(event.candidate.toJSON())
+                socket.emit("add-offer-candidate", 
+                        roomId,
+                        event.candidate.toJSON()
+                    )
+            }
+        }
+
+        const offerDescription = await pc.createOffer();
+        await pc.setLocalDescription(offerDescription)
+
+        const offer = {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type,
+        };
+
+        const res = await axios.patch("http://localhost:4000/v1/room/video/offer/update", {
+            roomId: roomId,
+            offer: offer
+        })
+        console.log("offer: ", res.data.data)
+
+        let answeredCall = false;
+
+        
+
+        socket.on('user-connected', (userData) => {
+            console.log("user connected: ", userData)
+        })
+    
+        socket.on('new-user-answered-call', (answer) => {
+            console.log("user answer: ", answer)
+
+
+            if (!pc.currentRemoteDescription) {
+                const answerDescription = new RTCSessionDescription(answer)
+                pc.setRemoteDescription(answerDescription)
+            }
+        })
+
+        socket.on('new-user-added-answer-candidate', (answerCandidate) => {
+            console.log("user answerCandidate: ", answerCandidate)
+            const candidate = new RTCIceCandidate(answerCandidate)
+            pc.addIceCandidate(candidate)
+        })
         
     }
 
+    const joinRoom = () => {
+        socket.emit("join-video-room", 
+            roomId,
+            userProfile.userId
+        )
+    }
+
+    const initRoom = () => {
+        if (userProfile.userId != "") {
+            chekForVideoRoom()
+        }
+    }
+
     useEffect(() => {
-        handleVideoRoom()
-    }, [])
+        joinRoom()
+        initRoom()
+    }, [userProfile.userId])
     return (
         <Wrapper>
             <HeadBar>
@@ -62,7 +326,7 @@ const VideoChatScreen: React.FC = ()  => {
                     <Link to="/">TeamKonnect</Link>
                 </div>
                 <div className="head-img">
-                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80" alt="avatar" />
+                    <img src={userProfile.profileImg} alt="avatar" />
                 </div>
             </HeadBar>
             <Content>
@@ -90,14 +354,14 @@ const VideoChatScreen: React.FC = ()  => {
                         <ControlItem>
                             <VscRecord />
                         </ControlItem>
-                        <ControlItem>
-                            <BsMicMute />
+                        <ControlItem  onClick={togggleAudio}>
+                            {callSettingsState.audio ? <BsMic /> : <BsMicMute />}
                         </ControlItem>
                         <ControlItem>
                             <MdPresentToAll />
                         </ControlItem>
-                        <ControlItem>
-                            <BsCameraVideo />
+                        <ControlItem onClick={togggleVideo}>
+                            {callSettingsState.video ? <BsCameraVideo /> : <BsCameraVideoOff />}
                         </ControlItem>
                         <ControlItem>
                             <HiOutlinePhone />

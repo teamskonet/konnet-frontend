@@ -78,6 +78,11 @@ export const VideoWrapper = styled.div`
     position: relative;
     overflow: hidden;
     margin: 0px auto;
+
+    video {
+        flex: 1;
+        height: 50%;
+    }
 `;
 
 export const CallBlock = styled.div`

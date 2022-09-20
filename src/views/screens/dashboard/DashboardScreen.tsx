@@ -1,3 +1,4 @@
+import axios from 'axios'
 import React, { useRef, useState } from 'react'
 import { BiCheck } from 'react-icons/bi'
 import { BsMicMuteFill } from 'react-icons/bs'
@@ -6,7 +7,7 @@ import {  IoSearchOutline, IoVideocamOutline } from 'react-icons/io5'
 import { MdArrowForwardIos, MdOutlineMessage, MdOutlinePermContactCalendar } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import useSocket from '../../../hooks/useSocket'
+// import useSocket from '../../../hooks/useSocket'
 import AxiosCall from '../../../Utils/axios'
 import Footer from '../../components/footer/Footer'
 import Header from '../../components/header/Header'
@@ -25,8 +26,9 @@ const DashboardScreen: React.FC = ()  => {
     const userProfile: any = useSelector((state: any) => state.user);
     
     const spaceNameRef = useRef<any>()
+    const videoRoomNameRef = useRef<any>()
     const navigate = useNavigate()
-    const { socket, sendPing } = useSocket()
+    // const { socket, sendPing } = useSocket()
 
     const chatModalRef = useRef<any>()
     const viedoModalRef = useRef<any>()
@@ -55,13 +57,25 @@ const DashboardScreen: React.FC = ()  => {
         }
     }
 
-    const createVideoRoom = (e: any) => {
+    const createVideoRoom = async (e: any) => {
         e.preventDefault()
-        socket.emit("join-video-room", 
-            "newRoomId",
-            userProfile.userId
-        )
-        return navigate("/video-chat")
+        
+
+        setIsCreatingVideoRoom(true)
+        const res = await axios.post("http://localhost:4000/v1/room/video/init", {
+            roomName: videoRoomNameRef.current.value,
+            userId: userProfile.userId
+        })
+        console.log(res.data.data)
+        setIsCreatingVideoRoom(false)
+        localStorage.setItem("video-room", res.data.data._id)
+
+        return navigate(`/video-chat?room=${res.data.data._id}`, {
+            state: {
+                roomId: res.data.data._id,
+                owner: true
+            }
+        })
     }
 
     const closeChatRoomModal = (e: any) =>{
@@ -134,13 +148,13 @@ const DashboardScreen: React.FC = ()  => {
             <RoomModal>
                 <h1>Video Room</h1>
                 <div className="input-field">
-                    <label htmlFor="msg-room-title">Title</label>
-                    <input ref={spaceNameRef} id="msg-room-title" type="text" placeholder="Enter room title" />
+                    <label htmlFor="video-room-title">Title</label>
+                    <input ref={videoRoomNameRef} id="video-room-title" type="text" placeholder="Enter room title" />
                 </div>
                 <div className="input-field">
-                    <label htmlFor="msg-room-title">Start time</label>
+                    <label htmlFor="video-room-title">Start time</label>
                     <div className="input-row">
-                        <input id="msg-room-title" disabled={true} type="text" placeholder="Enter room title" defaultValue={"Now"} />
+                        <input id="video-room-title" disabled={true} type="text" placeholder="Enter room title" defaultValue={"Now"} />
                         <MdArrowForwardIos />
                     </div>
                 </div>
@@ -256,8 +270,8 @@ const DashboardScreen: React.FC = ()  => {
                 </TabContent>
 
                 <LiveRoomWrapper>
-                    {[1,2,3,4,5,6,7,8].map((item) => {
-                        return <LiveRoom>
+                    {[1,2,3,4,5,6,7,8].map((item, index) => {
+                        return <LiveRoom key={index}>
                         <div className="row">
                             <div className="col">
                                 <div className="head">

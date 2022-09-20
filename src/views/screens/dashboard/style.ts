@@ -180,6 +180,7 @@ export const LiveRoomWrapper = styled.ul`
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    margin-bottom: 20px;
 `;
 
 export const LiveRoom = styled.ul`
@@ -302,6 +303,8 @@ export const RoomModal = styled.div`
     border-radius: 8px;
     background: #fff;
     width: 100%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     max-width: 480px;
     cursor: default;
 

@@ -19,14 +19,14 @@ import AnalyticsScreen from './views/screens/projectManagement/analytics/Analyti
 import VideoChatScreen from './views/screens/videoChat/VideoChatScreen';
 import AudioChatScreen from './views/screens/audioChat/AudioChatScreen';
 import ProfileScreen from './views/screens/profile/ProfileScreen';
-import useSocket from './hooks/useSocket';
+// import useSocket from './hooks/useSocket';
 
 function App() {
-  const { isConnected } = useSocket()
+  // const { isConnected } = useSocket()
 
-  useEffect(() => {
-    console.log("conection status: ", isConnected)
-  }, [isConnected])
+  // useEffect(() => {
+  //   console.log("conection status: ", isConnected)
+  // }, [isConnected])
 
   return (
       <Router>

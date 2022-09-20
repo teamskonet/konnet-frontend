@@ -47,7 +47,9 @@ const SigninScreen: React.FC = () => {
                 lastName: res.data.lastName,
                 profileImg: res.data.avatarUrl,
                 isEmailVerified: res.data.isEmailVerified,
-                friends: res.data.friends
+                friends: res.data.friends,
+                tagline: res.data.tagline,
+                phone: res.data.phoneNumber
             }
 
             dispatch(setUser(userData))

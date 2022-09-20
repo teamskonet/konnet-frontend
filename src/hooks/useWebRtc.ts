@@ -15,6 +15,8 @@ const  useWebRtc = () => {
     ],
     iceCandidatePoolSize: 10,
   };
+  const pc = new RTCPeerConnection(servers);
+  
   let localStream = null;
   let remoteStream = null;
 

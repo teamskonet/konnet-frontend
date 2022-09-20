@@ -181,7 +181,7 @@ const ProfileScreen: React.FC = ()  => {
                     </div>
                     <div className="input-col">
                         <label htmlFor="role">Tagline:</label>
-                        <input ref={taglineRef} type="text" name="role" id="role" placeholder="Ex: Sales Manager"/>
+                        <input ref={taglineRef} type="text" name="role" id="role" placeholder="Ex: Sales Manager" defaultValue={userProfile.tagline}/>
                     </div>
                     <div className="input-col">
                         <label htmlFor="email">Email:</label>
@@ -189,7 +189,7 @@ const ProfileScreen: React.FC = ()  => {
                     </div>
                     <div className="input-col">
                         <label htmlFor="phone-number">Phone number</label>
-                        <input ref={phoneRef} type="text" name="phone-number" id="phone-number" placeholder="Ex: 08012 3323 228"/>
+                        <input ref={phoneRef} type="text" name="phone-number" id="phone-number" placeholder="Ex: 08012 3323 228" defaultValue={userProfile.phone}/>
                     </div>
 
                     <button onClick={updateProfile} className="save-action">{isLoading ? <Loader topColor={undefined} sideColor={undefined} /> : "Save Profile"}</button>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Content, ContentWappper, Footer, Wrapper } from "./styles";
 import { BsCheck2 } from 'react-icons/bs'
@@ -13,6 +13,7 @@ import { setUser } from "../../../actions";
 
 const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
     const userProfile: any = useSelector((state: any) => state.user);
+    const videoRoomIdRef = useRef<String | null>(null)
     const { height, width } = useWindowDimensions()
     const dispatch = useDispatch()
 
@@ -30,15 +31,21 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
                 firstName: res.data.firstName,
                 lastName: res.data.lastName,
                 profileImg: res.data.avatarUrl,
-                spaces: res.data.spaces
+                spaces: res.data.spaces,
+                tagline: res.data.tagline,
+                phone: res.data.phoneNumber,
             }))
             Message.success("Profile fetched successfully")
         } catch (err: any) {
             Message.error(err?.response.data.message)
         }
     }
+    const getVideoRoomId = async () => {
+        videoRoomIdRef.current = localStorage.getItem("video-room")
+    }
     useEffect(() => {
         fetchProfile()
+        getVideoRoomId()
     }, [])
 
     return (
@@ -52,7 +59,7 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
                 <ul>
                     <li><Link to="/home"><HiHome /></Link></li>
                     <li><Link to="/audio-chat"><MdOutlineMic /></Link></li>
-                    <li><Link to="/video-chat"><img src="/assets/svg/video-call-icon.svg" alt="" /></Link></li>
+                    <li><Link to={"/video-chat?room=" + videoRoomIdRef.current}><img src="/assets/svg/video-call-icon.svg" alt="" /></Link></li>
                     <li><Link to="/chat"><img src="/assets/svg/chat-icon.svg" alt="" /></Link></li>
                     <li><Link to="/project-management"><MdOutlinePermContactCalendar /></Link></li>
                     <li><Link to="/profile"><img src="/assets/svg/account-icon.svg" alt="" /></Link></li>

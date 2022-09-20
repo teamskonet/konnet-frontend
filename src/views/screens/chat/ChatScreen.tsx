@@ -145,9 +145,9 @@ const ChatScreen: React.FC = ()  => {
         getRooms()
     }, [])
 
-    useEffect(() => {
-        getSpaceMembers()
-    }, [userProfile.spaces.length])
+    // useEffect(() => {
+    //     getSpaceMembers()
+    // }, [userProfile.spaces.length])
     
 
     return (
