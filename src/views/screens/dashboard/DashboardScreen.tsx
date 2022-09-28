@@ -62,7 +62,7 @@ const DashboardScreen: React.FC = ()  => {
         
 
         setIsCreatingVideoRoom(true)
-        const res = await axios.post("http://localhost:4000/v1/room/video/init", {
+        const res = await axios.post("https://loftywebtech.com/gotocourse/api/v1/room/video/init", {
             roomName: videoRoomNameRef.current.value,
             userId: userProfile.userId
         })
