@@ -54,8 +54,8 @@ const SignupScreen: React.FC = () => {
 
             dispatch(setUser(userData))
 
-            console.log("headers", res.headers["x-id-key"]);
-            localStorage.setItem("authToken", res.headers["x-id-key"])
+            console.log("headers", res.data.token);
+            localStorage.setItem("authToken", res.data.token)
             setIsLoading(false)
             Message.success("Account created successfully")
             
@@ -70,7 +70,7 @@ const SignupScreen: React.FC = () => {
             <HeadBar>
                 <div className="banner">
                     <img src="/assets/svg/logo.svg" alt="logo" />
-                    <Link to="/">TeamKonnect</Link>
+                    <Link to="/">TeamKonect</Link>
                 </div>
             </HeadBar>
             <ColumWrapper>

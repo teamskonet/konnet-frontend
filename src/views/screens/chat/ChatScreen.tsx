@@ -145,9 +145,13 @@ const ChatScreen: React.FC = ()  => {
         getRooms()
     }, [])
 
-    // useEffect(() => {
-    //     getSpaceMembers()
-    // }, [userProfile.spaces.length])
+    useEffect(() => {
+        // getSpaceMembers()
+        if (userProfile.friends.length > 0) {
+
+            setFriendList(userProfile.friends)
+        }
+    }, [userProfile.friends])
     
 
     return (
@@ -172,7 +176,7 @@ const ChatScreen: React.FC = ()  => {
                         </Tab>
                     </TabWrapper>
                     <ChatList>
-                        {userProfile.friends.map((item: any, index: React.Key) => {
+                        {friendList.map((item: any, index: React.Key) => {
                             return (
                                 <ChatCardWrapper key={index} onClick={() => {setSelectedChat(item); toggleChatView(true)}}>
                                     <ChatCard>

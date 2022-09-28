@@ -119,7 +119,7 @@ const DashboardScreen: React.FC = ()  => {
                     <button>cancel</button>
                 </div>
                 <ul className="friend-list">
-                    {[1,2,3,4,5].map((item, index) => {
+                    {userProfile.friends.map((item: any, index: number) => {
                         return <li key={index} onClick={() => {
                             if (!selectedRoomFiends.includes(item)) {
                                 setSelectedRoomFriends([...selectedRoomFiends, item])
@@ -130,8 +130,8 @@ const DashboardScreen: React.FC = ()  => {
                                 setSelectedRoomFriends([...selectedList])
                             }
                         }}>
-                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2ZpbGV8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=900&q=60" alt="" />
-                            <span>John Doe</span>
+                            <img src={item?.avatarUrl} alt="" />
+                            <span>{item?.firstName} {item?.lastName}</span>
                             <div className={`check-box  ${selectedRoomFiends.includes(item) ? "selected" : ""}`}>
                                 {selectedRoomFiends.includes(item) && <BiCheck />}
                             </div>
@@ -172,7 +172,7 @@ const DashboardScreen: React.FC = ()  => {
                     <button>cancel</button>
                 </div>
                 <ul className="friend-list">
-                    {[1,2,3,4,5].map((item, index) => {
+                    {userProfile.friends.map((item: any, index: number) => {
                         return <li key={index} onClick={() => {
                             if (!selectedRoomFiends.includes(item)) {
                                 setSelectedRoomFriends([...selectedRoomFiends, item])
@@ -183,8 +183,8 @@ const DashboardScreen: React.FC = ()  => {
                                 setSelectedRoomFriends([...selectedList])
                             }
                         }}>
-                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2ZpbGV8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=900&q=60" alt="" />
-                            <span>John Doe</span>
+                            <img src={item?.avatarUrl} alt="" />
+                            <span>{item?.firstName} {item?.lastName}</span>
                             <div className={`check-box  ${selectedRoomFiends.includes(item) ? "selected" : ""}`}>
                                 {selectedRoomFiends.includes(item) && <BiCheck />}
                             </div>

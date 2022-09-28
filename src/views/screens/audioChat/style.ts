@@ -71,33 +71,37 @@ export const VideoWrapper = styled.div`
     display: flex;
     padding: 20px;
     flex-wrap: wrap;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     align-items: flex-start;
     width: 100%;
     max-width: 1080px;
     border-radius: 10px;
     background-color: #ccc;
+    gap: 20px;
     /* height: 100%; */
     position: relative;
     overflow: hidden;
     margin: 0px auto;
     background: #fff;
 
-    ::after {
+    /* ::after {
         content: "";
         flex: 1;
-    }
+    } */
 `;
 
 export const CallBlock = styled.div`
     position: relative;
-    margin-right: 10px;
+    /* margin-right: 10px; */
     margin-bottom: 20px;
     :first-child {
         .img-wrapper {
             border: 3px solid ${props => props.theme.primaryColor};
             padding: 3px;
         }
+    }
+    :last-child {
+        margin-right: auto;
     }
     .img-wrapper {
         width: 80px;

@@ -34,6 +34,7 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
                 spaces: res.data.spaces,
                 tagline: res.data.tagline,
                 phone: res.data.phoneNumber,
+                friends: res.data.friends
             }))
             Message.success("Profile fetched successfully")
         } catch (err: any) {

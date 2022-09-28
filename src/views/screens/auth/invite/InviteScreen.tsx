@@ -52,7 +52,7 @@ const InviteScreen: React.FC = () => {
             <HeadBar>
                 <div className="banner">
                     <img src="/assets/svg/logo.svg" alt="logo" />
-                    <Link to="/">TeamKonnect</Link>
+                    <Link to="/">TeamKonect</Link>
                 </div>
             </HeadBar>
             <Content finishedFirstStep={finishedFirstStep}>

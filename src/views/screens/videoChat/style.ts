@@ -158,6 +158,7 @@ export const ControlWrapper = styled.div`
     position: absolute;
     bottom: 20px;
     width: 100%;
+    z-index: 9999;
 `;
 export const ControlItem= styled.div`
     display: flex;

@@ -1,20 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { BiTrash } from 'react-icons/bi'
-import { BsMicMuteFill } from 'react-icons/bs'
-import { FiMoreHorizontal } from 'react-icons/fi'
-import { IoIosAddCircle } from 'react-icons/io'
-import {  IoLink, IoPersonAddOutline, IoVideocamOutline } from 'react-icons/io5'
-import { MdExpandMore, MdOutlineDateRange, MdOutlineEdit, MdOutlineMessage, MdOutlinePermContactCalendar, MdOutlinePersonAdd } from 'react-icons/md'
+import {  IoLink } from 'react-icons/io5'
+import { MdExpandMore, MdOutlineDateRange, MdOutlineEdit, MdOutlinePersonAdd } from 'react-icons/md'
 import { Link, useNavigate } from 'react-router-dom'
 import AxiosCall from '../../../Utils/axios'
-import Footer from '../../components/footer/Footer'
-import Header from '../../components/header/Header'
-import Analytics from './analytics/Analytics'
 import Message from "../../components/Message/Message";
 import { Wrapper, Content, CardsWrapper, Cards, HeadBar, MenuBar, FloatingBtn, NewProjectModal, NewProjectModalContent, SpacesModal, InviteModal, InviteModalContent  } from './style'
 import Loader from '../../components/Loader/Loader'
+import { useSelector } from 'react-redux'
 
 const ProjectManagement: React.FC = ()  => {
+    const userProfile: any = useSelector((state: any) => state.user);
     const [showMenuModal, setShowMenuModal] = useState<boolean>(false)
     const [showSpaceModal, setShowSpaceModal] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -256,7 +252,7 @@ const ProjectManagement: React.FC = ()  => {
                     <img src="/assets/svg/stats-vector.svg" alt="" />
                 </div>
                 <div className="head-img" onClick={() => setShowMenuModal(!showMenuModal)}>
-                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80" alt="avatar" />
+                    <img src={userProfile.profileImg} alt="avatar" />
                 </div>
             </HeadBar>
             <Content>

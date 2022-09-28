@@ -20,7 +20,7 @@ const PricingScreen: React.FC = () => {
             <HeadBar>
                 <div className="banner">
                     <img src="/assets/svg/logo.svg" alt="logo" />
-                    <Link to="/">TeLinkmKonnect</Link>
+                    <Link to="/">TeLinkmKonect</Link>
                 </div>
             </HeadBar>
             <Content finishedFirstStep={finishedFirstStep}>

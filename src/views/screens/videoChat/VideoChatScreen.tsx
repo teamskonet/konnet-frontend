@@ -189,39 +189,90 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const togggleVideo = async () => {
-        let videoTrack =  localStream?.getTracks().find(track => track.kind == 'video');
+        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
 
-        console.log("videoTrack: ", videoTrack)
+        if (callSettingsState.video) {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            console.log('====================================');
+            console.log(localStream);
+            console.log('====================================');
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
 
-        if (videoTrack?.enabled) {
-            videoTrack.enabled = false;
+            let videoTrack = localStream?.getTracks().find(track => track.kind == 'video');
+            setTimeout(() => {
+                videoTrack!.enabled = false
+            }, 5000)
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
+
             setCallSettingsState({...callSettingsState, video: false})
         } else {
-            videoTrack!.enabled = true;
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            console.log('====================================');
+            console.log(localStream);
+            console.log('====================================');
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
             setCallSettingsState({...callSettingsState, video: true})
         }
     }
     
-    const togggleAudio = () => {
+    const togggleAudio = async () => {
         let audioTrack = localStream?.getTracks().find(track => track.kind == 'audio');
 
         if (audioTrack?.enabled) {
             audioTrack.enabled = false;
             setCallSettingsState({...callSettingsState, audio: false})
         } else {
-            audioTrack!.enabled = true;
-            setCallSettingsState({...callSettingsState, audio: true})
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            console.log('====================================');
+            console.log(localStream);
+            console.log('====================================');
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
         }
     }
 
     const startWebCam = async () => {
         const videoWrapper = document.querySelector('.video-section')
-        const myVideo = document.createElement('video')
+        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+        myVideo?.setAttribute("autoplay", "")
+        myVideo?.setAttribute("playsInline", "")
         const remoteVideo = document.createElement('video')
-        myVideo.muted = true;
+        remoteVideo.setAttribute("autoplay", "")
+        remoteVideo.setAttribute("playsInline", "")
+        myVideo!.muted = true;
         remoteVideo.muted = false;
 
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+
+        console.log('====================================');
+        console.log(localStream);
+        console.log('====================================');
         remoteStream = new MediaStream()
 
         localStream.getTracks().forEach((track) => {
@@ -236,9 +287,9 @@ const VideoChatScreen: React.FC = ()  => {
             });
         }
     
-        myVideo.srcObject = localStream
-        myVideo.addEventListener('loadedmetadata', () => {
-            myVideo.play()
+        myVideo!.srcObject = localStream
+        myVideo!.addEventListener('loadedmetadata', () => {
+            myVideo!.play()
         })
 
         remoteVideo.srcObject = remoteStream
@@ -246,10 +297,7 @@ const VideoChatScreen: React.FC = ()  => {
             remoteVideo.play()
         })
 
-        videoWrapper?.append(myVideo)
         videoWrapper?.append(remoteVideo)
-
-       
 
         pc.onicecandidate = event => {
             if (event.candidate) {
@@ -331,6 +379,7 @@ const VideoChatScreen: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <VideoWrapper className="video-section">
+                    <video className="client-local-stream" src=""></video>
                     {/* <CallBlock>
                         <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
