@@ -202,9 +202,9 @@ const VideoChatScreen: React.FC = ()  => {
     const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
-        localStream.getTracks().forEach((track) => {
-            pc.addTrack(track, localStream!);
-        });
+        // localStream.getTracks().forEach((track) => {
+        //     pc.addTrack(track, localStream!);
+        // });
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
 
