@@ -37,7 +37,7 @@ const VideoChatScreen: React.FC = ()  => {
             return;
         }
 
-        const res = await axios.get("http://localhost:4000/v1/room/video/"+ roomId)
+        const res = await axios.get("https://loftywebtech.com/gotocourse/api/v1/room/video/"+ roomId)
         console.log("checked room: ", res.data)
 
         if (res.data.data.userId == userProfile.userId) {
