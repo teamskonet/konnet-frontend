@@ -317,7 +317,7 @@ const VideoChatScreen: React.FC = ()  => {
             type: offerDescription.type,
         };
 
-        const res = await axios.patch("http://localhost:4000/v1/room/video/offer/update", {
+        const res = await axios.patch("https://loftywebtech.com/gotocourse/api/v1/room/video/offer/update", {
             roomId: roomId,
             offer: offer
         })
