@@ -189,39 +189,62 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const togggleVideo = async () => {
+        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
 
         if (callSettingsState.video) {
-            setVideoToggle({video: false, audio: callSettingsState.audio})
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
+
+            let videoTrack = localStream?.getTracks().find(track => track.kind == 'video');
+            setTimeout(() => {
+                videoTrack!.enabled = false
+            }, 5000)
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
+
             setCallSettingsState({...callSettingsState, video: false})
         } else {
-            setVideoToggle({video: true, audio: true})
-            setCallSettingsState({...callSettingsState, video: callSettingsState.audio})
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
+            setCallSettingsState({...callSettingsState, video: true})
         }
-    }
-
-    const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
-        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
-        localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
-        // localStream.getTracks().forEach((track) => {
-        //     pc.addTrack(track, localStream!);
-        // });
-        myVideo?.setAttribute("autoplay", "")
-        myVideo?.setAttribute("playsInline", "")
-
-        myVideo!.srcObject = localStream
-        myVideo!.addEventListener('loadedmetadata', () => {
-            myVideo!.play()
-        })
     }
     
     const togggleAudio = async () => {
+        let audioTrack = localStream?.getTracks().find(track => track.kind == 'audio');
 
-        if (callSettingsState.audio) {
-            setVideoToggle({video: callSettingsState.video, audio: false})
+        if (audioTrack?.enabled) {
+            audioTrack.enabled = false;
             setCallSettingsState({...callSettingsState, audio: false})
         } else {
-            setVideoToggle({video: callSettingsState.video, audio: true})
-            setCallSettingsState({...callSettingsState, audio: true})
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream!);
+            });
+            const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+            myVideo?.setAttribute("autoplay", "")
+            myVideo?.setAttribute("playsInline", "")
+    
+            myVideo!.srcObject = localStream
+            myVideo!.addEventListener('loadedmetadata', () => {
+                myVideo!.play()
+            })
         }
     }
 
@@ -237,6 +260,10 @@ const VideoChatScreen: React.FC = ()  => {
         remoteVideo.muted = false;
 
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+
+        console.log('====================================');
+        console.log(localStream);
+        console.log('====================================');
         remoteStream = new MediaStream()
 
         localStream.getTracks().forEach((track) => {

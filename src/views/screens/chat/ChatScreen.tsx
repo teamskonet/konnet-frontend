@@ -120,21 +120,23 @@ const ChatScreen: React.FC = ()  => {
     }
 
     const getConversation = async () => {
-        if (selectedChat == null) {
-            return;
-        }
-        try {
-            const res = await AxiosCall({
-                method: "GET",
-                path: `/conversation/${selectedChat._id}`,
-            });
-        
-            setMessageList(res.data)
-            console.log("messages: ", res.data)
-        } catch (err: any) {
-            console.log(err)
-            Message.error(err?.response.data.message)
-        }
+        setInterval(async () => {
+            if (selectedChat == null) {
+                return;
+            }
+            try {
+                const res = await AxiosCall({
+                    method: "GET",
+                    path: `/conversation/${selectedChat._id}`,
+                });
+            
+                setMessageList(res.data)
+                console.log("messages: ", res.data)
+            } catch (err: any) {
+                console.log(err)
+                Message.error(err?.response.data.message)
+            }
+        }, 2000)
     }
 
     useEffect(() => {
