@@ -10,10 +10,10 @@ import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
 import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper,  } from './style'
+import { Peer } from "peerjs";
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
-    // const [hasStartedVideoSession, setHasStartedVideoSession] = useState<boolean>(false)
     const location: any = useLocation();
     const userProfile: any = useSelector((state: any) => state.user);
     const [callSettingsState, setCallSettingsState] = useState<{
@@ -25,9 +25,19 @@ const VideoChatScreen: React.FC = ()  => {
     })
     const query = useQuery();
     let roomId = query.get('room')
-    // const roomId = location.state.roomId
     let isRoomOwner = false;
 
+
+
+    const startPeerConnection = () => {
+        // myPeer = new Peer(userProfile.userId, {
+        //     host: 'localhost',
+        //     port: 9000,
+        //     path: '/peer'
+        // });
+        // console.log("peer: ", myPeer)
+    }
+    
 
 
     const chekForVideoRoom = async () => {
@@ -38,8 +48,6 @@ const VideoChatScreen: React.FC = ()  => {
         }
 
         const res = await axios.get("https://loftywebtech.com/gotocourse/api/v1/room/video/"+ roomId)
-        console.log("checked room: ", res.data)
-
         if (res.data.data.userId == userProfile.userId) {
             isRoomOwner = true
 
@@ -47,146 +55,23 @@ const VideoChatScreen: React.FC = ()  => {
             
         } else {
             isRoomOwner = false
-            answerCall(res.data.data.offer)
+            startWebCam()
         }
     }
-
-
 
 
     console.log("roomId: ", roomId)
-    // const myVideoRef = useRef<any>()
 
-    // const handleVideoRoom = () => {
-    //     console.log("started video init")
-    //     const myVideo = document.createElement('video')
-    //     myVideo.muted = true;
-
-    //     navigator.mediaDevices.getUserMedia({
-    //         video: true,
-    //         audio: true
-    //     }).then(stream => {
-    //         addVideoStream(myVideo, stream)
-
-
-    //         socket.on('user-connected', userId => {
-    //             console.log("user connected: ", userId)
-    //             connectToNewUser(userId, stream)
-    //         })
-    //     })
-    // }
-
-    // const connectToNewUser = (userId: String, stream: any) => {
-
-    // }
-
-    
-
-
-    // const addVideoStream = (video: any, stream: any) => {
-    //     const videoWrapper: any = document.querySelector('.video-section')
-    //     video.srcObject = stream
-    //     video.addEventListener('loadedmetadata', () => {
-    //         video.play()
-
-    //         console.log("video playing ...")
-    //     })
-    //     videoWrapper.append(video)
-    //     console.log("ended video init")
-        
-    // }
-
-    const servers = {
-        iceServers: [
-          {
-            urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
-          },
-        ],
-        iceCandidatePoolSize: 10,
-    };
-    const pc = new RTCPeerConnection(servers);
     let localStream: MediaStream | null = null;
-    let remoteStream: MediaStream | null = null;
-    const offerCandidates = []
-    const answerCandidates = []
 
-    const answerCall = async (offer: any) => {
-        console.log("caller offerCandidate: ", offer)
-        const videoWrapper = document.querySelector('.video-section')
-        const myVideo = document.createElement('video')
-        const remoteVideo = document.createElement('video')
-        myVideo.muted = true;
-        remoteVideo.muted = false;
-
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-        remoteStream = new MediaStream()
-
-        localStream.getTracks().forEach((track) => {
-            //  if (!callSettingsState.audio) {
-            //     if(track.kind == "audio") {
-            //         track.enabled = false
-            //     }
-            // }
-
-            // if (!callSettingsState.video) {
-            //     if(track.kind == "video") {
-            //         track.enabled = false
-            //     }
-            // }
-
-            console.log("answer streaming local video")
-
-            pc.addTrack(track, localStream!);
-            
-        });
-        pc.ontrack = event => {
-            event.streams[0].getTracks().forEach(track => {
-                remoteStream?.addTrack(track);
-            });
-        }
-
-
-        myVideo.srcObject = localStream
-        myVideo.addEventListener('loadedmetadata', () => {
-            myVideo.play()
-
-            console.log("local video playing ...")
-        })
-
-        remoteVideo.srcObject = remoteStream
-        remoteVideo.addEventListener('loadedmetadata', () => {
-            remoteVideo.play()
-
-            console.log("remote video playing ...")
-        })
-
-        videoWrapper?.append(myVideo)
-        videoWrapper?.append(remoteVideo)
-
-
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                answerCandidates.push(event.candidate.toJSON())
-                socket.emit("add-answer-candidate", roomId, event.candidate.toJSON())
-            }
-        }
-        const offerDescription = offer
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription))
-
-        const answerDescription = await pc.createAnswer();
-        await pc.setLocalDescription(answerDescription);
-
-        const answer = {
-            type: answerDescription.type,
-            sdp: answerDescription.sdp
-        }
-        socket.emit("answered-call", roomId, answer)
-        socket.on('user-added-offer-candidate', (offerCandidate) => {
-            console.log("user-added-offer-candidate: ", offerCandidate)
-            const candidate = new RTCIceCandidate(offerCandidate)
-            pc.addIceCandidate(candidate)
-        })
-    }
+    // const answerCall = async (offer: any) => {
+    //     socket.emit("answered-call", roomId, answer)
+    //     socket.on('user-added-offer-candidate', (offerCandidate) => {
+    //         console.log("user-added-offer-candidate: ", offerCandidate)
+    //         const candidate = new RTCIceCandidate(offerCandidate)
+    //         pc.addIceCandidate(candidate)
+    //     })
+    // }
 
     const togggleVideo = async () => {
 
@@ -202,9 +87,6 @@ const VideoChatScreen: React.FC = ()  => {
     const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
-        // localStream.getTracks().forEach((track) => {
-        //     pc.addTrack(track, localStream!);
-        // });
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
 
@@ -225,99 +107,76 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
+    const videoWrapper = document.querySelector('.video-section')
+
+    function addVideoStream(video: any, stream: any) {
+        video.srcObject = stream
+        video.addEventListener('loadedmetadata', () => {
+          video.play()
+        })
+        videoWrapper?.append(video)
+      }
+      const peers: any = {}
     const startWebCam = async () => {
-        const videoWrapper = document.querySelector('.video-section')
+
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
-        const remoteVideo = document.createElement('video')
-        remoteVideo.setAttribute("autoplay", "")
-        remoteVideo.setAttribute("playsInline", "")
         myVideo!.muted = true;
-        remoteVideo.muted = false;
 
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-        remoteStream = new MediaStream()
 
-        localStream.getTracks().forEach((track) => {
-            pc.addTrack(track, localStream!);
+
+        let myPeer: Peer = new Peer(userProfile.userId, {
+            host: 'localhost',
+            port: 9000,
+            path: '/peer'
         });
 
-        pc.ontrack = event => {
-            console.log("remote event: ", event)
-            event.streams[0].getTracks().forEach(track => {
-                console.log("remote streaming: ", track)
-                remoteStream?.addTrack(track);
-            });
-        }
-    
+        console.log("peer: ", myPeer)
+        console.log("omo lofty")
+        myPeer.on('open', userId => {
+            console.log("conntected to room with userId: ", userId)
+            socket.emit('join-video-room', roomId, userId)
+        })
+        myPeer.on('call', call => {
+            call.answer(localStream!)
+            const remoteVideo = document.createElement('video')
+            call.on('stream', userVideoStream => {
+                addVideoStream(remoteVideo, userVideoStream)
+            })
+        })
+
         myVideo!.srcObject = localStream
         myVideo!.addEventListener('loadedmetadata', () => {
             myVideo!.play()
         })
 
-        remoteVideo.srcObject = remoteStream
-        remoteVideo.addEventListener('loadedmetadata', () => {
-            remoteVideo.play()
+        socket.on('new-user-join-video-room', (userId) => {
+            console.log("new user joined room: ", userId)
+            connectToNewUser(userId, localStream)
         })
 
-        videoWrapper?.append(remoteVideo)
+        const connectToNewUser = (userId: any, stream: any) => {
+            const call = myPeer.call(userId, stream)
+            const remoteVideo = document.createElement('video')
+            call.on('stream', userVideoStream => {
+                console.log("recevied user video stream: ", userVideoStream)
+                addVideoStream(remoteVideo, userVideoStream)
+            })
+            call.on('close', () => {
+                remoteVideo.remove();
+            })
 
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                offerCandidates.push(event.candidate.toJSON())
-                socket.emit("add-offer-candidate", 
-                        roomId,
-                        event.candidate.toJSON()
-                    )
-            }
+            peers[userId] = call
         }
 
-        const offerDescription = await pc.createOffer();
-        await pc.setLocalDescription(offerDescription)
-
-        const offer = {
-            sdp: offerDescription.sdp,
-            type: offerDescription.type,
-        };
-
-        const res = await axios.patch("https://loftywebtech.com/gotocourse/api/v1/room/video/offer/update", {
-            roomId: roomId,
-            offer: offer
-        })
-        console.log("offer: ", res.data.data)
-
-        let answeredCall = false;
-
-        
-
-        socket.on('user-connected', (userData) => {
-            console.log("user connected: ", userData)
-        })
-    
-        socket.on('new-user-answered-call', (answer) => {
-            console.log("user answer: ", answer)
-
-
-            if (!pc.currentRemoteDescription) {
-                const answerDescription = new RTCSessionDescription(answer)
-                pc.setRemoteDescription(answerDescription)
+        socket.on('user-disconected', userId => {
+            console.log('user disconnected: ', userId)
+            if (peers[userId]) {
+                peers[userId].close()
             }
         })
-
-        socket.on('new-user-added-answer-candidate', (answerCandidate) => {
-            console.log("user answerCandidate: ", answerCandidate)
-            const candidate = new RTCIceCandidate(answerCandidate)
-            pc.addIceCandidate(candidate)
-        })
-        
-    }
-
-    const joinRoom = () => {
-        socket.emit("join-video-room", 
-            roomId,
-            userProfile.userId
-        )
     }
 
     const initRoom = () => {
@@ -327,7 +186,6 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     useEffect(() => {
-        joinRoom()
         initRoom()
     }, [userProfile.userId])
     return (

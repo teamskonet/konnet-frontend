@@ -22,9 +22,7 @@ const TabLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
             const res = await AxiosCall({
                 method: "GET",
                 path: "/user/me"
-              });
-              console.log(res.data)
-
+            });
             dispatch(setUser({...userProfile,
                 userId: res.data._id,
                 email: res.data.email,
