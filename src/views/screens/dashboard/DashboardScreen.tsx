@@ -7,6 +7,7 @@ import {  IoSearchOutline, IoVideocamOutline } from 'react-icons/io5'
 import { MdArrowForwardIos, MdOutlineMessage, MdOutlinePermContactCalendar } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import CONFIG from '../../../Utils/appConst'
 // import useSocket from '../../../hooks/useSocket'
 import AxiosCall from '../../../Utils/axios'
 import Footer from '../../components/footer/Footer'
@@ -62,7 +63,7 @@ const DashboardScreen: React.FC = ()  => {
         
 
         setIsCreatingVideoRoom(true)
-        const res = await axios.post("https://loftywebtech.com/gotocourse/api/v1/room/video/init", {
+        const res = await axios.post(`${CONFIG.socketUrl}/api/v1/room/video/init`, {
             roomName: videoRoomNameRef.current.value,
             userId: userProfile.userId
         })

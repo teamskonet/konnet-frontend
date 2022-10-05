@@ -11,6 +11,7 @@ import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
 import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper,  } from './style'
 import { Peer } from "peerjs";
+import CONFIG from '../../../Utils/appConst'
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
@@ -28,18 +29,6 @@ const VideoChatScreen: React.FC = ()  => {
     let isRoomOwner = false;
 
 
-
-    const startPeerConnection = () => {
-        // myPeer = new Peer(userProfile.userId, {
-        //     host: 'localhost',
-        //     port: 9000,
-        //     path: '/peer'
-        // });
-        // console.log("peer: ", myPeer)
-    }
-    
-
-
     const chekForVideoRoom = async () => {
         if (location?.state?.owner) {
             isRoomOwner = true
@@ -47,7 +36,7 @@ const VideoChatScreen: React.FC = ()  => {
             return;
         }
 
-        const res = await axios.get("https://loftywebtech.com/gotocourse/api/v1/room/video/"+ roomId)
+        const res = await axios.get(`${CONFIG.socketUrl}/api/v1/room/video/${roomId}`)
         if (res.data.data.userId == userProfile.userId) {
             isRoomOwner = true
 
@@ -59,19 +48,7 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
-
-    console.log("roomId: ", roomId)
-
     let localStream: MediaStream | null = null;
-
-    // const answerCall = async (offer: any) => {
-    //     socket.emit("answered-call", roomId, answer)
-    //     socket.on('user-added-offer-candidate', (offerCandidate) => {
-    //         console.log("user-added-offer-candidate: ", offerCandidate)
-    //         const candidate = new RTCIceCandidate(offerCandidate)
-    //         pc.addIceCandidate(candidate)
-    //     })
-    // }
 
     const togggleVideo = async () => {
 
@@ -128,7 +105,7 @@ const VideoChatScreen: React.FC = ()  => {
 
 
         let myPeer: Peer = new Peer(userProfile.userId, {
-            host: 'localhost',
+            host: CONFIG.socketUrl,
             port: 9000,
             path: '/peer'
         });
