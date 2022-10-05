@@ -36,7 +36,7 @@ const VideoChatScreen: React.FC = ()  => {
             return;
         }
 
-        const res = await axios.get(`${CONFIG.socketUrl}/api/v1/room/video/${roomId}`)
+        const res = await axios.get(`${CONFIG.socketUrl}/v1/room/video/${roomId}`)
         if (res.data.data.userId == userProfile.userId) {
             isRoomOwner = true
 

@@ -63,7 +63,7 @@ const DashboardScreen: React.FC = ()  => {
         
 
         setIsCreatingVideoRoom(true)
-        const res = await axios.post(`${CONFIG.socketUrl}/api/v1/room/video/init`, {
+        const res = await axios.post(`${CONFIG.socketUrl}/v1/room/video/init`, {
             roomName: videoRoomNameRef.current.value,
             userId: userProfile.userId
         })
