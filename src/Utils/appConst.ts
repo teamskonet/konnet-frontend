@@ -1,6 +1,6 @@
 const  CONFIG = {
-    socketUrl: "https://gotocourseserver.herokuapp.com",
-    peerUrl: "gotocourseserver.herokuapp.com"
+    socketUrl: "http://gotocourse.loftywebtech.com:9000",
+    peerUrl: "gotocourse.loftywebtech.com"
 }
 
 export default  CONFIG
