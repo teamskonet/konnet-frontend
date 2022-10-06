@@ -1,5 +1,5 @@
 const  CONFIG = {
-    socketUrl: "https://onibatamall.com",
+    socketUrl: "https://gotocourseserver.herokuapp.com",
     peerUrl: "onibatamall.com"
 }
 
