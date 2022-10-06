@@ -100,7 +100,7 @@ const VideoChatScreen: React.FC = ()  => {
         myVideo?.setAttribute("playsInline", "")
         myVideo!.muted = true;
 
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false})
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
 
 
         let myPeer: Peer = new Peer(userProfile.userId, {
