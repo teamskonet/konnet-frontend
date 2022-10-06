@@ -106,9 +106,8 @@ const VideoChatScreen: React.FC = ()  => {
 
         let myPeer: Peer = new Peer(userProfile.userId, {
             host: CONFIG.peerUrl,
-            port: 8080,
-            path: '/peer',
-            secure: true
+            port: 9001,
+            path: '/peer'
         });
 
         console.log("peer: ", myPeer)
