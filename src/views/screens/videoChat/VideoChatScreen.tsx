@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, CallBlock, UserCallBlock,  } from './style'
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
@@ -25,7 +25,6 @@ const VideoChatScreen: React.FC = ()  => {
     })
     const query = useQuery();
     let roomId = query.get('room')
-    // const roomId = location.state.roomId
     let isRoomOwner = false;
 
 
@@ -51,51 +50,6 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
-
-
-
-    console.log("roomId: ", roomId)
-    // const myVideoRef = useRef<any>()
-
-    // const handleVideoRoom = () => {
-    //     console.log("started video init")
-    //     const myVideo = document.createElement('video')
-    //     myVideo.muted = true;
-
-    //     navigator.mediaDevices.getUserMedia({
-    //         video: true,
-    //         audio: true
-    //     }).then(stream => {
-    //         addVideoStream(myVideo, stream)
-
-
-    //         socket.on('user-connected', userId => {
-    //             console.log("user connected: ", userId)
-    //             connectToNewUser(userId, stream)
-    //         })
-    //     })
-    // }
-
-    // const connectToNewUser = (userId: String, stream: any) => {
-
-    // }
-
-    
-
-
-    // const addVideoStream = (video: any, stream: any) => {
-    //     const videoWrapper: any = document.querySelector('.video-section')
-    //     video.srcObject = stream
-    //     video.addEventListener('loadedmetadata', () => {
-    //         video.play()
-
-    //         console.log("video playing ...")
-    //     })
-    //     videoWrapper.append(video)
-    //     console.log("ended video init")
-        
-    // }
-
     const servers = {
         iceServers: [
           {
@@ -110,58 +64,57 @@ const VideoChatScreen: React.FC = ()  => {
     const offerCandidates = []
     const answerCandidates = []
 
-    const answerCall = async (offer: any) => {
-        console.log("caller offerCandidate: ", offer)
-        const videoWrapper = document.querySelector('.video-section')
-        const myVideo = document.createElement('video')
+
+    const videoWrapper = document.querySelector('.video-section')
+    
+    const addNewUser = () => {
+        console.log("added remote stream")
+        remoteStream = new MediaStream()
+        const remoteVideoWrapper = document.createElement('div')
+        remoteVideoWrapper.classList.add("remote-users")
         const remoteVideo = document.createElement('video')
-        myVideo.muted = true;
+        remoteVideoWrapper.appendChild(remoteVideo)
+        remoteVideo.setAttribute("autoplay", "")
+        remoteVideo.setAttribute("playsInline", "")
         remoteVideo.muted = false;
 
+        remoteVideo.srcObject = remoteStream
+        remoteVideo.addEventListener('loadedmetadata', () => {
+            remoteVideo.play()
+        })
+
+        videoWrapper?.append(remoteVideoWrapper)
+    }
+
+    const answerCall = async (offer: any) => {
+        console.log("caller offerCandidate: ", offer)
+        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+        myVideo?.setAttribute("autoplay", "")
+        myVideo?.setAttribute("playsInline", "")
+        myVideo!.muted = true;
+
+
+        addNewUser()
+
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-        remoteStream = new MediaStream()
 
         localStream.getTracks().forEach((track) => {
-            //  if (!callSettingsState.audio) {
-            //     if(track.kind == "audio") {
-            //         track.enabled = false
-            //     }
-            // }
-
-            // if (!callSettingsState.video) {
-            //     if(track.kind == "video") {
-            //         track.enabled = false
-            //     }
-            // }
-
-            console.log("answer streaming local video")
-
             pc.addTrack(track, localStream!);
-            
         });
         pc.ontrack = event => {
+            console.log("got remote stream track")
             event.streams[0].getTracks().forEach(track => {
                 remoteStream?.addTrack(track);
             });
         }
 
 
-        myVideo.srcObject = localStream
-        myVideo.addEventListener('loadedmetadata', () => {
-            myVideo.play()
+        myVideo!.srcObject = localStream
+        myVideo!.addEventListener('loadedmetadata', () => {
+            myVideo!.play()
 
             console.log("local video playing ...")
         })
-
-        remoteVideo.srcObject = remoteStream
-        remoteVideo.addEventListener('loadedmetadata', () => {
-            remoteVideo.play()
-
-            console.log("remote video playing ...")
-        })
-
-        videoWrapper?.append(myVideo)
-        videoWrapper?.append(remoteVideo)
 
 
         pc.onicecandidate = event => {
@@ -181,6 +134,7 @@ const VideoChatScreen: React.FC = ()  => {
             sdp: answerDescription.sdp
         }
         socket.emit("answered-call", roomId, answer)
+        // addNewUser()
         socket.on('user-added-offer-candidate', (offerCandidate) => {
             console.log("user-added-offer-candidate: ", offerCandidate)
             const candidate = new RTCIceCandidate(offerCandidate)
@@ -189,82 +143,47 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const togggleVideo = async () => {
-        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
 
         if (callSettingsState.video) {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-            localStream.getTracks().forEach((track) => {
-                pc.addTrack(track, localStream!);
-            });
-            myVideo?.setAttribute("autoplay", "")
-            myVideo?.setAttribute("playsInline", "")
-
-            let videoTrack = localStream?.getTracks().find(track => track.kind == 'video');
-            setTimeout(() => {
-                videoTrack!.enabled = false
-            }, 5000)
-    
-            myVideo!.srcObject = localStream
-            myVideo!.addEventListener('loadedmetadata', () => {
-                myVideo!.play()
-            })
-
+            setVideoToggle({video: false, audio: callSettingsState.audio})
             setCallSettingsState({...callSettingsState, video: false})
         } else {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-            localStream.getTracks().forEach((track) => {
-                pc.addTrack(track, localStream!);
-            });
-            myVideo?.setAttribute("autoplay", "")
-            myVideo?.setAttribute("playsInline", "")
-    
-            myVideo!.srcObject = localStream
-            myVideo!.addEventListener('loadedmetadata', () => {
-                myVideo!.play()
-            })
-            setCallSettingsState({...callSettingsState, video: true})
+            setVideoToggle({video: true, audio: true})
+            setCallSettingsState({...callSettingsState, video: callSettingsState.audio})
         }
+    }
+
+    const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
+        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+        localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
+      
+        myVideo?.setAttribute("autoplay", "")
+        myVideo?.setAttribute("playsInline", "")
+
+        myVideo!.srcObject = localStream
+        myVideo!.addEventListener('loadedmetadata', () => {
+            myVideo!.play()
+        })
     }
     
     const togggleAudio = async () => {
-        let audioTrack = localStream?.getTracks().find(track => track.kind == 'audio');
 
-        if (audioTrack?.enabled) {
-            audioTrack.enabled = false;
+        if (callSettingsState.audio) {
+            setVideoToggle({video: callSettingsState.video, audio: false})
             setCallSettingsState({...callSettingsState, audio: false})
         } else {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-            localStream.getTracks().forEach((track) => {
-                pc.addTrack(track, localStream!);
-            });
-            const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
-            myVideo?.setAttribute("autoplay", "")
-            myVideo?.setAttribute("playsInline", "")
-    
-            myVideo!.srcObject = localStream
-            myVideo!.addEventListener('loadedmetadata', () => {
-                myVideo!.play()
-            })
+            setVideoToggle({video: callSettingsState.video, audio: true})
+            setCallSettingsState({...callSettingsState, audio: true})
         }
     }
 
     const startWebCam = async () => {
-        const videoWrapper = document.querySelector('.video-section')
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
-        const remoteVideo = document.createElement('video')
-        remoteVideo.setAttribute("autoplay", "")
-        remoteVideo.setAttribute("playsInline", "")
         myVideo!.muted = true;
-        remoteVideo.muted = false;
 
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-
-        console.log('====================================');
-        console.log(localStream);
-        console.log('====================================');
-        remoteStream = new MediaStream()
 
         localStream.getTracks().forEach((track) => {
             pc.addTrack(track, localStream!);
@@ -282,13 +201,6 @@ const VideoChatScreen: React.FC = ()  => {
         myVideo!.addEventListener('loadedmetadata', () => {
             myVideo!.play()
         })
-
-        remoteVideo.srcObject = remoteStream
-        remoteVideo.addEventListener('loadedmetadata', () => {
-            remoteVideo.play()
-        })
-
-        videoWrapper?.append(remoteVideo)
 
         pc.onicecandidate = event => {
             if (event.candidate) {
@@ -313,16 +225,12 @@ const VideoChatScreen: React.FC = ()  => {
             offer: offer
         })
         console.log("offer: ", res.data.data)
-
-        let answeredCall = false;
-
-        
-
         socket.on('user-connected', (userData) => {
             console.log("user connected: ", userData)
         })
     
         socket.on('new-user-answered-call', (answer) => {
+            addNewUser()
             console.log("user answer: ", answer)
 
 
@@ -370,7 +278,10 @@ const VideoChatScreen: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <VideoWrapper className="video-section">
-                    <video className="client-local-stream" src=""></video>
+                    {/* <div className="remote-users">
+                        <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
+                        <span>Vinay Gupta</span>
+                    </div> */}
                     {/* <CallBlock>
                         <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
@@ -386,10 +297,10 @@ const VideoChatScreen: React.FC = ()  => {
                     <CallBlock>
                         <img src="https://images.unsplash.com/photo-1612000529646-f424a2aa1bff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
-                    </CallBlock>
+                    </CallBlock> */}
                     <UserCallBlock>
-                        <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
-                    </UserCallBlock> */}
+                        <video className="client-local-stream" src=""></video>
+                    </UserCallBlock>
                     <ControlWrapper>
                         <ControlItem>
                             <VscRecord />
