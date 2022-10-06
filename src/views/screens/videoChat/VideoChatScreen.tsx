@@ -150,7 +150,7 @@ const VideoChatScreen: React.FC = ()  => {
                 addVideoStream(remoteVideo, userVideoStream)
             })
             call.on('close', () => {
-                remoteVideo.remove();
+                remoteVideoWrapper.remove();
             })
 
             peers[userId] = call
