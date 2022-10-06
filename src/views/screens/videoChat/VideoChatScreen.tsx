@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, UserCallBlock,  } from './style'
 import { Peer } from "peerjs";
 import CONFIG from '../../../Utils/appConst'
 
@@ -101,14 +101,14 @@ const VideoChatScreen: React.FC = ()  => {
         myVideo?.setAttribute("playsInline", "")
         myVideo!.muted = true;
 
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false})
 
 
         let myPeer: Peer = new Peer(userProfile.userId, {
             host: CONFIG.peerUrl,
-            port: 9001,
+            port: 443,
             path: '/peer',
-            secure: true
+            secure: true,
         });
 
         console.log("peer: ", myPeer)
@@ -137,7 +137,14 @@ const VideoChatScreen: React.FC = ()  => {
 
         const connectToNewUser = (userId: any, stream: any) => {
             const call = myPeer.call(userId, stream)
+
+            const remoteVideoWrapper = document.createElement('div')
+            remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
+            remoteVideoWrapper.appendChild(remoteVideo)
+
+
+
             call.on('stream', userVideoStream => {
                 console.log("recevied user video stream: ", userVideoStream)
                 addVideoStream(remoteVideo, userVideoStream)
@@ -179,7 +186,6 @@ const VideoChatScreen: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <VideoWrapper className="video-section">
-                    <video className="client-local-stream" src=""></video>
                     {/* <CallBlock>
                         <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
@@ -199,6 +205,10 @@ const VideoChatScreen: React.FC = ()  => {
                     <UserCallBlock>
                         <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
                     </UserCallBlock> */}
+
+                    <UserCallBlock>
+                        <video className="client-local-stream" src=""></video>
+                    </UserCallBlock>
                     <ControlWrapper>
                         <ControlItem>
                             <VscRecord />
