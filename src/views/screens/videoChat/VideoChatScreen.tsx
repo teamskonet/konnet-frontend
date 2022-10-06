@@ -91,7 +91,6 @@ const VideoChatScreen: React.FC = ()  => {
         video.addEventListener('loadedmetadata', () => {
           video.play()
         })
-        videoWrapper?.append(video)
       }
       const peers: any = {}
     const startWebCam = async () => {
@@ -142,6 +141,7 @@ const VideoChatScreen: React.FC = ()  => {
             remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
             remoteVideoWrapper.appendChild(remoteVideo)
+            videoWrapper?.append(remoteVideoWrapper)
 
 
 

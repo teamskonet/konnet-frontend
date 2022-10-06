@@ -60,8 +60,7 @@ const DashboardScreen: React.FC = ()  => {
 
     const createVideoRoom = async (e: any) => {
         e.preventDefault()
-        
-
+    
         setIsCreatingVideoRoom(true)
         const res = await axios.post(`${CONFIG.socketUrl}/v1/room/video/init`, {
             roomName: videoRoomNameRef.current.value,
@@ -192,7 +191,7 @@ const DashboardScreen: React.FC = ()  => {
                         </li>
                     })}
                 </ul>
-                <button onClick={createVideoRoom} className="start-room">{isCreatingVideoRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
+                <button onClick={(e) => createVideoRoom(e)} className="start-room">{isCreatingVideoRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
             </RoomModal>
         </RoomModalWrapper>
     }
