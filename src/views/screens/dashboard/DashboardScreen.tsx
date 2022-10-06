@@ -20,19 +20,23 @@ const DashboardScreen: React.FC = ()  => {
     const [selectedRoomFiends, setSelectedRoomFriends] = useState<Array<Number>>([])
     const [isCreatingChatRoom, setIsCreatingChatRoom] = useState<boolean>(false)
     const [isCreatingVideoRoom, setIsCreatingVideoRoom] = useState<boolean>(false)
+    const [isCreatingAudioRoom, setIsCreatingAudioRoom] = useState<boolean>(false)
     const [showChatRoomModal, setShowChatRoomModal] = useState<boolean>(false)
     const [showVideoRoomModal, setShowVideoRoomModal] = useState<boolean>(false)
+    const [showAudioRoomModal, setShowAudioRoomModal] = useState<boolean>(false)
 
 
     const userProfile: any = useSelector((state: any) => state.user);
     
     const spaceNameRef = useRef<any>()
     const videoRoomNameRef = useRef<any>()
+    const audioRoomNameRef = useRef<any>()
     const navigate = useNavigate()
     // const { socket, sendPing } = useSocket()
 
     const chatModalRef = useRef<any>()
     const viedoModalRef = useRef<any>()
+    const audioModalRef = useRef<any>()
 
     const createChatRoom = async (e:any) => {
         e.preventDefault()
@@ -79,6 +83,27 @@ const DashboardScreen: React.FC = ()  => {
         })
     }
 
+    const createAudioRoom = async (e: any) => {
+        e.preventDefault()
+        
+
+        setIsCreatingAudioRoom(true)
+        const res = await axios.post("https://loftywebtech.com/gotocourse/api/v1/room/video/init", {
+            roomName: videoRoomNameRef.current.value,
+            userId: userProfile.userId
+        })
+        console.log(res.data.data)
+        setIsCreatingAudioRoom(false)
+        localStorage.setItem("video-room", res.data.data._id)
+
+        return navigate(`/audio-chat?room=${res.data.data._id}`, {
+            state: {
+                roomId: res.data.data._id,
+                owner: true
+            }
+        })
+    }
+
     const closeChatRoomModal = (e: any) =>{
         if (e.target == chatModalRef.current) {
             setShowChatRoomModal(false)
@@ -88,6 +113,11 @@ const DashboardScreen: React.FC = ()  => {
     const closeVideoRoomModal = (e: any) =>{
         if (e.target == viedoModalRef.current) {
             setShowVideoRoomModal(false)
+        }
+    }
+    const closeAudioRoomModal = (e: any) =>{
+        if (e.target == audioModalRef.current) {
+            setShowAudioRoomModal(false)
         }
     }
 
@@ -199,9 +229,9 @@ const DashboardScreen: React.FC = ()  => {
 
 
     const AudioRoomModal = () => {
-        return <RoomModalWrapper ref={viedoModalRef} onClick={closeVideoRoomModal}>
+        return <RoomModalWrapper ref={audioRoomNameRef} onClick={closeAudioRoomModal}>
             <RoomModal>
-                <h1>Video Room</h1>
+                <h1>Audio Room</h1>
                 <div className="input-field">
                     <label htmlFor="video-room-title">Title</label>
                     <input ref={videoRoomNameRef} id="video-room-title" type="text" placeholder="Enter room title" />
@@ -246,7 +276,7 @@ const DashboardScreen: React.FC = ()  => {
                         </li>
                     })}
                 </ul>
-                <button onClick={createVideoRoom} className="start-room">{isCreatingVideoRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
+                <button onClick={createAudioRoom} className="start-room">{isCreatingAudioRoom ? <Loader topColor={undefined} sideColor={undefined} /> : "Start room"}</button>
             </RoomModal>
         </RoomModalWrapper>
     }
@@ -265,7 +295,7 @@ const DashboardScreen: React.FC = ()  => {
             <Content>
                 <PageTitle>Hallway</PageTitle>
                 <RoomsWrapper>
-                    <Room>
+                    <Room onClick={() => setShowAudioRoomModal(true)}>
                         <div className="head">
                             <div className="icon-box">
                                 <BsMicMuteFill />
@@ -354,6 +384,7 @@ const DashboardScreen: React.FC = ()  => {
                     })}
                 </LiveRoomWrapper>
             </Content>
+            {showAudioRoomModal && <AudioRoomModal />}
             {showChatRoomModal && <ChatRoomModal />}
             {showVideoRoomModal && <VideoRoomModal />}
         </Wrapper>

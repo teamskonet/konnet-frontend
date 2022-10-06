@@ -73,15 +73,51 @@ export const VideoWrapper = styled.div`
     width: 100%;
     max-width: 1080px;
     border-radius: 10px;
-    background-color: #ccc;
+    background-color: #222;
     height: 100%;
     position: relative;
     overflow: hidden;
     margin: 0px auto;
+    padding: 10px;
 
-    video {
+    /* video {
         flex: 1;
         height: 50%;
+    } */
+
+
+    .remote-users {
+        background: #000;
+        flex: 1;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+
+        img {
+            min-height: 100%;
+            min-width: 100%;
+            object-fit: cover;
+        }
+
+        span {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 13px;
+            color: #09132C;
+            background-color: #fff6;
+            padding: 8px 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(3px);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     }
 `;
 
@@ -119,10 +155,10 @@ export const UserCallBlock = styled.div`
     box-shadow: 0px 0px 10px -2px #ccc;
     right: 20px;
     bottom: 20px;
+    z-index: 999;
 
-    img {
-        min-height: 100%;
-        min-width: 100%;
+    video {
+        width: 100%;
         object-fit: cover;
     }
 `;
