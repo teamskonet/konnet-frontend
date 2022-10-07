@@ -73,6 +73,7 @@ export const VideoWrapper = styled.div`
     width: 100%;
     max-width: 1080px;
     border-radius: 10px;
+    gap: 10px;
     background-color: #222;
     height: 100%;
     position: relative;
