@@ -86,7 +86,8 @@ const VideoChatScreen: React.FC = ()  => {
 
     const videoWrapper = document.querySelector('.video-section')
 
-    function addVideoStream(video: any, stream: any) {
+    function addVideoStream(videoWrapper: any, stream: any) {
+        const video: HTMLVideoElement = videoWrapper.querySelector('video')
         video.srcObject = stream
         video.addEventListener('loadedmetadata', () => {
           video.play()
@@ -118,9 +119,14 @@ const VideoChatScreen: React.FC = ()  => {
         })
         myPeer.on('call', call => {
             call.answer(localStream!)
+            const remoteVideoWrapper = document.createElement('div')
+            remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
+            remoteVideoWrapper.appendChild(remoteVideo)
+            videoWrapper?.append(remoteVideoWrapper)
+            
             call.on('stream', userVideoStream => {
-                addVideoStream(remoteVideo, userVideoStream)
+                addVideoStream(remoteVideoWrapper, userVideoStream)
             })
         })
 
@@ -144,10 +150,9 @@ const VideoChatScreen: React.FC = ()  => {
             videoWrapper?.append(remoteVideoWrapper)
 
 
-
             call.on('stream', userVideoStream => {
                 console.log("recevied user video stream: ", userVideoStream)
-                addVideoStream(remoteVideo, userVideoStream)
+                addVideoStream(remoteVideoWrapper, userVideoStream)
             })
             call.on('close', () => {
                 remoteVideoWrapper.remove();
