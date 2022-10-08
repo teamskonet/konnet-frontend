@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import CONFIG from '../Utils/appConst';
 
-const socket = io("https://gotocourseserver.herokuapp.com");
+const socket = io(CONFIG.socketUrl);
 
 const  useSocket = () => {
   const [isConnected, setIsConnected] = useState(socket.connected);

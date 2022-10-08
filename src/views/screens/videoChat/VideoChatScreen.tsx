@@ -13,7 +13,6 @@ import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, Contro
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
-    // const [hasStartedVideoSession, setHasStartedVideoSession] = useState<boolean>(false)
     const location: any = useLocation();
     const userProfile: any = useSelector((state: any) => state.user);
     const [callSettingsState, setCallSettingsState] = useState<{
@@ -28,7 +27,6 @@ const VideoChatScreen: React.FC = ()  => {
     let isRoomOwner = false;
 
 
-
     const chekForVideoRoom = async () => {
         if (location?.state?.owner) {
             isRoomOwner = true
@@ -36,9 +34,7 @@ const VideoChatScreen: React.FC = ()  => {
             return;
         }
 
-        const res = await axios.get("https://loftywebtech.com/gotocourse/api/v1/room/video/"+ roomId)
-        console.log("checked room: ", res.data)
-
+        const res = await axios.get(`${CONFIG.socketUrl}/v1/room/video/${roomId}`)
         if (res.data.data.userId == userProfile.userId) {
             isRoomOwner = true
 
@@ -46,7 +42,7 @@ const VideoChatScreen: React.FC = ()  => {
             
         } else {
             isRoomOwner = false
-            answerCall(res.data.data.offer)
+            startWebCam()
         }
     }
 
@@ -143,7 +139,6 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const togggleVideo = async () => {
-
         if (callSettingsState.video) {
             setVideoToggle({video: false, audio: callSettingsState.audio})
             setCallSettingsState({...callSettingsState, video: false})
@@ -177,6 +172,16 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
+    const videoWrapper = document.querySelector('.video-section')
+
+    function addVideoStream(videoWrapper: any, stream: any) {
+        const video: HTMLVideoElement = videoWrapper.querySelector('video')
+        video.srcObject = stream
+        video.addEventListener('loadedmetadata', () => {
+          video.play()
+        })
+    }
+    const peers: any = {}
     const startWebCam = async () => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         myVideo?.setAttribute("autoplay", "")
@@ -185,18 +190,33 @@ const VideoChatScreen: React.FC = ()  => {
 
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
 
-        localStream.getTracks().forEach((track) => {
-            pc.addTrack(track, localStream!);
+
+        let myPeer: Peer = new Peer(userProfile.userId, {
+            host: CONFIG.peerUrl,
+            port: 9001,
+            path: '/peer',
+            secure: true,
         });
 
-        pc.ontrack = event => {
-            console.log("remote event: ", event)
-            event.streams[0].getTracks().forEach(track => {
-                console.log("remote streaming: ", track)
-                remoteStream?.addTrack(track);
-            });
-        }
-    
+        console.log("peer: ", myPeer)
+        console.log("omo lofty")
+        myPeer.on('open', userId => {
+            console.log("conntected to room with userId: ", userId)
+            socket.emit('join-video-room', roomId, userId)
+        })
+        myPeer.on('call', call => {
+            call.answer(localStream!)
+            const remoteVideoWrapper = document.createElement('div')
+            remoteVideoWrapper.classList.add("remote-users")
+            const remoteVideo = document.createElement('video')
+            remoteVideoWrapper.appendChild(remoteVideo)
+            videoWrapper?.append(remoteVideoWrapper)
+            
+            call.on('stream', userVideoStream => {
+                addVideoStream(remoteVideoWrapper, userVideoStream)
+            })
+        })
+
         myVideo!.srcObject = localStream
         myVideo!.addEventListener('loadedmetadata', () => {
             myVideo!.play()
@@ -239,20 +259,6 @@ const VideoChatScreen: React.FC = ()  => {
                 pc.setRemoteDescription(answerDescription)
             }
         })
-
-        socket.on('new-user-added-answer-candidate', (answerCandidate) => {
-            console.log("user answerCandidate: ", answerCandidate)
-            const candidate = new RTCIceCandidate(answerCandidate)
-            pc.addIceCandidate(candidate)
-        })
-        
-    }
-
-    const joinRoom = () => {
-        socket.emit("join-video-room", 
-            roomId,
-            userProfile.userId
-        )
     }
 
     const initRoom = () => {
@@ -262,7 +268,6 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     useEffect(() => {
-        joinRoom()
         initRoom()
     }, [userProfile.userId])
     return (
