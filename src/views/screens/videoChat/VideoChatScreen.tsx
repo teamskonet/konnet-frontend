@@ -49,7 +49,7 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     let localStream: MediaStream | null = null;
-    let call: MediaConnection;
+    let myCall: MediaConnection;
 
     const togggleVideo = async () => {
         if (callSettingsState.video) {
@@ -65,7 +65,7 @@ const VideoChatScreen: React.FC = ()  => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
 
-        call.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
+        myCall.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
 
@@ -142,7 +142,7 @@ const VideoChatScreen: React.FC = ()  => {
         })
 
         const connectToNewUser = (userId: any, stream: any) => {
-            call = myPeer.call(userId, stream)
+            myCall = myPeer.call(userId, stream)
 
             const remoteVideoWrapper = document.createElement('div')
             remoteVideoWrapper.classList.add("remote-users")
@@ -151,15 +151,15 @@ const VideoChatScreen: React.FC = ()  => {
             videoWrapper?.append(remoteVideoWrapper)
 
 
-            call.on('stream', userVideoStream => {
+            myCall.on('stream', userVideoStream => {
                 console.log("recevied user video stream: ", userVideoStream)
                 addVideoStream(remoteVideoWrapper, userVideoStream)
             })
-            call.on('close', () => {
+            myCall.on('close', () => {
                 remoteVideoWrapper.remove();
             })
 
-            peers[userId] = call
+            peers[userId] = myCall
         }
 
         socket.on('user-disconected', userId => {
