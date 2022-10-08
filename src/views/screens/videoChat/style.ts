@@ -69,6 +69,7 @@ export const Content = styled.div`
 
 export const VideoWrapper = styled.div`
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
     width: 100%;
     max-width: 1080px;
@@ -80,6 +81,11 @@ export const VideoWrapper = styled.div`
     overflow: hidden;
     margin: 0px auto;
     padding: 10px;
+    
+
+    @media screen and (min-width: 880px) {
+        flex-direction: row;
+    }
 
     /* video {
         flex: 1;
@@ -155,12 +161,17 @@ export const UserCallBlock = styled.div`
     overflow: hidden;
     box-shadow: 0px 0px 10px -2px #ccc;
     right: 20px;
-    bottom: 20px;
+    bottom: 90px;
     z-index: 999;
 
     video {
         width: 100%;
         object-fit: cover;
+    }
+
+    @media screen and (min-width: 880px) {
+        flex-direction: row;
+        bottom: 20px;
     }
 `;
 

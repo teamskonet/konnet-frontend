@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
 import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, UserCallBlock,  } from './style'
-import { Peer } from "peerjs";
+import { MediaConnection, Peer } from "peerjs";
 import CONFIG from '../../../Utils/appConst'
 
 const VideoChatScreen: React.FC = ()  => {
@@ -49,9 +49,9 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     let localStream: MediaStream | null = null;
+    let call: MediaConnection;
 
     const togggleVideo = async () => {
-
         if (callSettingsState.video) {
             setVideoToggle({video: false, audio: callSettingsState.audio})
             setCallSettingsState({...callSettingsState, video: false})
@@ -64,6 +64,8 @@ const VideoChatScreen: React.FC = ()  => {
     const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
+
+        call.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
 
@@ -92,8 +94,8 @@ const VideoChatScreen: React.FC = ()  => {
         video.addEventListener('loadedmetadata', () => {
           video.play()
         })
-      }
-      const peers: any = {}
+    }
+    const peers: any = {}
     const startWebCam = async () => {
 
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
@@ -141,7 +143,7 @@ const VideoChatScreen: React.FC = ()  => {
         })
 
         const connectToNewUser = (userId: any, stream: any) => {
-            const call = myPeer.call(userId, stream)
+            call = myPeer.call(userId, stream)
 
             const remoteVideoWrapper = document.createElement('div')
             remoteVideoWrapper.classList.add("remote-users")
