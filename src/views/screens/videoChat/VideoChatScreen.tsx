@@ -9,7 +9,9 @@ import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, CallBlock, UserCallBlock,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, UserCallBlock,  } from './style'
+import { MediaConnection, Peer } from "peerjs";
+import CONFIG from '../../../Utils/appConst'
 
 const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
@@ -46,97 +48,8 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
-    const servers = {
-        iceServers: [
-          {
-            urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
-          },
-        ],
-        iceCandidatePoolSize: 10,
-    };
-    const pc = new RTCPeerConnection(servers);
     let localStream: MediaStream | null = null;
-    let remoteStream: MediaStream | null = null;
-    const offerCandidates = []
-    const answerCandidates = []
-
-
-    const videoWrapper = document.querySelector('.video-section')
-    
-    const addNewUser = () => {
-        console.log("added remote stream")
-        remoteStream = new MediaStream()
-        const remoteVideoWrapper = document.createElement('div')
-        remoteVideoWrapper.classList.add("remote-users")
-        const remoteVideo = document.createElement('video')
-        remoteVideoWrapper.appendChild(remoteVideo)
-        remoteVideo.setAttribute("autoplay", "")
-        remoteVideo.setAttribute("playsInline", "")
-        remoteVideo.muted = false;
-
-        remoteVideo.srcObject = remoteStream
-        remoteVideo.addEventListener('loadedmetadata', () => {
-            remoteVideo.play()
-        })
-
-        videoWrapper?.append(remoteVideoWrapper)
-    }
-
-    const answerCall = async (offer: any) => {
-        console.log("caller offerCandidate: ", offer)
-        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
-        myVideo?.setAttribute("autoplay", "")
-        myVideo?.setAttribute("playsInline", "")
-        myVideo!.muted = true;
-
-
-        addNewUser()
-
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
-
-        localStream.getTracks().forEach((track) => {
-            pc.addTrack(track, localStream!);
-        });
-        pc.ontrack = event => {
-            console.log("got remote stream track")
-            event.streams[0].getTracks().forEach(track => {
-                remoteStream?.addTrack(track);
-            });
-        }
-
-
-        myVideo!.srcObject = localStream
-        myVideo!.addEventListener('loadedmetadata', () => {
-            myVideo!.play()
-
-            console.log("local video playing ...")
-        })
-
-
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                answerCandidates.push(event.candidate.toJSON())
-                socket.emit("add-answer-candidate", roomId, event.candidate.toJSON())
-            }
-        }
-        const offerDescription = offer
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription))
-
-        const answerDescription = await pc.createAnswer();
-        await pc.setLocalDescription(answerDescription);
-
-        const answer = {
-            type: answerDescription.type,
-            sdp: answerDescription.sdp
-        }
-        socket.emit("answered-call", roomId, answer)
-        // addNewUser()
-        socket.on('user-added-offer-candidate', (offerCandidate) => {
-            console.log("user-added-offer-candidate: ", offerCandidate)
-            const candidate = new RTCIceCandidate(offerCandidate)
-            pc.addIceCandidate(candidate)
-        })
-    }
+    let call: MediaConnection;
 
     const togggleVideo = async () => {
         if (callSettingsState.video) {
@@ -151,7 +64,8 @@ const VideoChatScreen: React.FC = ()  => {
     const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
-      
+
+        call.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
         myVideo?.setAttribute("autoplay", "")
         myVideo?.setAttribute("playsInline", "")
 
@@ -222,41 +136,36 @@ const VideoChatScreen: React.FC = ()  => {
             myVideo!.play()
         })
 
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                offerCandidates.push(event.candidate.toJSON())
-                socket.emit("add-offer-candidate", 
-                        roomId,
-                        event.candidate.toJSON()
-                    )
-            }
+        socket.on('new-user-join-video-room', (userId) => {
+            console.log("new user joined room: ", userId)
+            connectToNewUser(userId, localStream)
+        })
+
+        const connectToNewUser = (userId: any, stream: any) => {
+            call = myPeer.call(userId, stream)
+
+            const remoteVideoWrapper = document.createElement('div')
+            remoteVideoWrapper.classList.add("remote-users")
+            const remoteVideo = document.createElement('video')
+            remoteVideoWrapper.appendChild(remoteVideo)
+            videoWrapper?.append(remoteVideoWrapper)
+
+
+            call.on('stream', userVideoStream => {
+                console.log("recevied user video stream: ", userVideoStream)
+                addVideoStream(remoteVideoWrapper, userVideoStream)
+            })
+            call.on('close', () => {
+                remoteVideoWrapper.remove();
+            })
+
+            peers[userId] = call
         }
 
-        const offerDescription = await pc.createOffer();
-        await pc.setLocalDescription(offerDescription)
-
-        const offer = {
-            sdp: offerDescription.sdp,
-            type: offerDescription.type,
-        };
-
-        const res = await axios.patch("https://loftywebtech.com/gotocourse/api/v1/room/video/offer/update", {
-            roomId: roomId,
-            offer: offer
-        })
-        console.log("offer: ", res.data.data)
-        socket.on('user-connected', (userData) => {
-            console.log("user connected: ", userData)
-        })
-    
-        socket.on('new-user-answered-call', (answer) => {
-            addNewUser()
-            console.log("user answer: ", answer)
-
-
-            if (!pc.currentRemoteDescription) {
-                const answerDescription = new RTCSessionDescription(answer)
-                pc.setRemoteDescription(answerDescription)
+        socket.on('user-disconected', userId => {
+            console.log('user disconnected: ', userId)
+            if (peers[userId]) {
+                peers[userId].close()
             }
         })
     }
@@ -283,10 +192,6 @@ const VideoChatScreen: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <VideoWrapper className="video-section">
-                    {/* <div className="remote-users">
-                        <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
-                        <span>Vinay Gupta</span>
-                    </div> */}
                     {/* <CallBlock>
                         <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
@@ -303,6 +208,10 @@ const VideoChatScreen: React.FC = ()  => {
                         <img src="https://images.unsplash.com/photo-1612000529646-f424a2aa1bff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                         <span>Vinay Gupta</span>
                     </CallBlock> */}
+                    {/*" <UserCallBlock>
+                        <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
+                    </UserCallBlock> */}
+
                     <UserCallBlock>
                         <video className="client-local-stream" src=""></video>
                     </UserCallBlock>
