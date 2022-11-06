@@ -62,17 +62,25 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
-        const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
-        localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
+        const enabled = localStream?.getAudioTracks()[0].enabled;
 
-        myCall.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
-        myVideo?.setAttribute("autoplay", "")
-        myVideo?.setAttribute("playsInline", "")
+        if (enabled) {
+            localStream!.getVideoTracks()[0].enabled = false;
+        } else {
+            localStream!.getVideoTracks()[0].enabled = true;
+        }
 
-        myVideo!.srcObject = localStream
-        myVideo!.addEventListener('loadedmetadata', () => {
-            myVideo!.play()
-        })
+        // const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
+        // localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
+
+        // myCall.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
+        // myVideo?.setAttribute("autoplay", "")
+        // myVideo?.setAttribute("playsInline", "")
+
+        // myVideo!.srcObject = localStream
+        // myVideo!.addEventListener('loadedmetadata', () => {
+        //     myVideo!.play()
+        // })
     }
     
     const togggleAudio = async () => {
@@ -115,7 +123,7 @@ const VideoChatScreen: React.FC = ()  => {
         console.log("peer: ", myPeer)
         console.log("omo lofty")
         myPeer.on('open', userId => {
-            console.log("conntected to room with userId: ", userId)
+            console.log("connected to room with userId: ", userId)
             socket.emit('join-video-room', roomId, userId)
         })
         myPeer.on('call', call => {

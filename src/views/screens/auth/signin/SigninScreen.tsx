@@ -11,6 +11,7 @@ import Message from "../../../components/Message/Message";
 import Loader from "../../../components/Loader/Loader";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../../actions";
+import useQuery from "../../../../hooks/useQuery";
 
 const SigninScreen: React.FC = () => {
     const [rememberUser, setRememberUser] = useState<boolean>(false)
@@ -23,6 +24,7 @@ const SigninScreen: React.FC = () => {
     const password = useRef<any>(null);
 
     let navigate = useNavigate();
+    const query = useQuery();
 
     const signin = async (e: any) => {
         e.preventDefault();
@@ -59,7 +61,12 @@ const SigninScreen: React.FC = () => {
             setIsLoading(false)
             localStorage.setItem("authToken", res.data.token)
             Message.success("Signin success")
+
             
+            let redirectPath = query.get('redirect')
+            if (redirectPath) {
+                return navigate(redirectPath);
+            }
             return navigate("/home");
         } catch (err: any) {
             setIsLoading(false)
