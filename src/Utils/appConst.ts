@@ -1,5 +1,5 @@
 const  CONFIG = {
-    socketUrl: "http://gotocourse.loftywebtech.com",
+    socketUrl: "https://gotocourse.loftywebtech.com",
     peerUrl: "gotocourse.loftywebtech.com"
 }
 
