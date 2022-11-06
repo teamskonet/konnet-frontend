@@ -1,5 +1,5 @@
 import axios from 'axios'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsCameraVideo, BsCameraVideoOff, BsMic, BsMicMute } from 'react-icons/bs'
 import { HiOutlinePhone } from 'react-icons/hi'
 import {  IoAdd } from 'react-icons/io5'
@@ -32,7 +32,7 @@ const VideoChatScreen: React.FC = ()  => {
     const chekForVideoRoom = async () => {
         if (location?.state?.owner) {
             isRoomOwner = true
-            startWebCam()
+            setUpMediaScreen()
             return;
         }
 
@@ -40,56 +40,53 @@ const VideoChatScreen: React.FC = ()  => {
         if (res.data.data.userId == userProfile.userId) {
             isRoomOwner = true
 
-            startWebCam()
+            setUpMediaScreen()
             
         } else {
             isRoomOwner = false
-            startWebCam()
+            setUpMediaScreen()
         }
     }
-
-    let localStream: MediaStream | null = null;
+    const localStream = useRef<MediaStream | null>(null);
     let myCall: MediaConnection;
 
     const togggleVideo = async () => {
         if (callSettingsState.video) {
-            setVideoToggle({video: false, audio: callSettingsState.audio})
+            handleVideoToggle({video: false, audio: callSettingsState.audio})
             setCallSettingsState({...callSettingsState, video: false})
         } else {
-            setVideoToggle({video: true, audio: true})
+            handleVideoToggle({video: true, audio: true})
             setCallSettingsState({...callSettingsState, video: callSettingsState.audio})
         }
     }
 
-    const setVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
-        const enabled = localStream?.getAudioTracks()[0].enabled;
+    const handleVideoToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
+        const enabled = localStream.current?.getVideoTracks()[0].enabled;
 
         if (enabled) {
-            localStream!.getVideoTracks()[0].enabled = false;
+            localStream.current!.getVideoTracks()[0].enabled = false;
         } else {
-            localStream!.getVideoTracks()[0].enabled = true;
+            localStream.current!.getVideoTracks()[0].enabled = true;
         }
+    }
 
-        // const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
-        // localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: audio})
+    const handleAudioToggle = async ({video, audio} : {video: boolean, audio: boolean}) => {
+        const enabled = localStream.current?.getAudioTracks()[0].enabled;
 
-        // myCall.peerConnection.getSenders()[0].replaceTrack(localStream.getTracks()[0])
-        // myVideo?.setAttribute("autoplay", "")
-        // myVideo?.setAttribute("playsInline", "")
-
-        // myVideo!.srcObject = localStream
-        // myVideo!.addEventListener('loadedmetadata', () => {
-        //     myVideo!.play()
-        // })
+        if (enabled) {
+            localStream.current!.getAudioTracks()[0].enabled = false;
+        } else {
+            localStream.current!.getAudioTracks()[0].enabled = true;
+        }
     }
     
     const togggleAudio = async () => {
 
         if (callSettingsState.audio) {
-            setVideoToggle({video: callSettingsState.video, audio: false})
+            handleAudioToggle({video: callSettingsState.video, audio: false})
             setCallSettingsState({...callSettingsState, audio: false})
         } else {
-            setVideoToggle({video: callSettingsState.video, audio: true})
+            handleAudioToggle({video: callSettingsState.video, audio: true})
             setCallSettingsState({...callSettingsState, audio: true})
         }
     }
@@ -103,6 +100,17 @@ const VideoChatScreen: React.FC = ()  => {
           video.play()
         })
     }
+
+    const setUpMediaScreen = () => {
+        navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: true,
+        }).then((stream) => {
+            localStream.current = stream;
+            startWebCam()
+        });
+    }
+    
     const peers: any = {}
     const startWebCam = async () => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
@@ -110,7 +118,9 @@ const VideoChatScreen: React.FC = ()  => {
         myVideo?.setAttribute("playsInline", "")
         myVideo!.muted = true;
 
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+        // localStream.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
+
+        
 
 
         let myPeer: Peer = new Peer(userProfile.userId, {
@@ -127,7 +137,7 @@ const VideoChatScreen: React.FC = ()  => {
             socket.emit('join-video-room', roomId, userId)
         })
         myPeer.on('call', call => {
-            call.answer(localStream!)
+            call.answer(localStream.current!)
             const remoteVideoWrapper = document.createElement('div')
             remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
@@ -139,14 +149,14 @@ const VideoChatScreen: React.FC = ()  => {
             })
         })
 
-        myVideo!.srcObject = localStream
+        myVideo!.srcObject = localStream.current
         myVideo!.addEventListener('loadedmetadata', () => {
             myVideo!.play()
         })
 
         socket.on('new-user-join-video-room', (userId) => {
             console.log("new user joined room: ", userId)
-            connectToNewUser(userId, localStream)
+            connectToNewUser(userId, localStream.current)
         })
 
         const connectToNewUser = (userId: any, stream: any) => {
@@ -170,7 +180,7 @@ const VideoChatScreen: React.FC = ()  => {
             peers[userId] = myCall
         }
 
-        socket.on('user-disconected', userId => {
+        socket.on('user-disconnected', userId => {
             console.log('user disconnected: ', userId)
             if (peers[userId]) {
                 peers[userId].close()
@@ -192,7 +202,7 @@ const VideoChatScreen: React.FC = ()  => {
             <HeadBar>
                 <div className="banner">
                     <img src="/assets/svg/logo.svg" alt="logo" />
-                    <Link to="/">TeamKonnect</Link>
+                    <Link to="/home">TeamKonnect</Link>
                 </div>
                 <div className="head-img">
                     <img src={userProfile.profileImg} alt="avatar" />
@@ -221,7 +231,7 @@ const VideoChatScreen: React.FC = ()  => {
                     </UserCallBlock> */}
 
                     <UserCallBlock>
-                        <video className="client-local-stream" src=""></video>
+                        <video className="client-local-stream" src="" muted={true}></video>
                     </UserCallBlock>
                     <ControlWrapper>
                         <ControlItem>
