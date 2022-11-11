@@ -250,7 +250,8 @@ export const UserPresentation = styled.div<{isPresenting: boolean}>`
     position: relative;
 
     video {
-        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
     }
 

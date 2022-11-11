@@ -31,6 +31,12 @@ const VideoChatScreen: React.FC = ()  => {
 
     const connectionUserId = useRef(userProfile.userId)
 
+    const connectionStateRef = useRef<{
+        hasJoinedPresentation: boolean
+    }>({
+        hasJoinedPresentation: false
+    })
+
        
 
 
@@ -139,6 +145,7 @@ const VideoChatScreen: React.FC = ()  => {
                 host: CONFIG.peerUrl,
                 port: 9001,
                 path: '/peer',
+                secure: true
             });
 
 
@@ -152,9 +159,14 @@ const VideoChatScreen: React.FC = ()  => {
                 presentationPeers.current[call.peer] = call
                 call.answer(presentationStream.current!)
 
-                // call.on('stream', userVideoStream => {
-                //     console.log("remote presentation viewer sent sream: ", userVideoStream)
-                // })
+                call.on('stream', userVideoStream => {
+                    console.log("remote presentation viewer sent sream: ", userVideoStream)
+                })
+
+                call?.on('close', () => {
+                    console.log("connection closed")
+                    // remoteVideoWrapper.remove();
+                })
             })
 
             presentationStream.current.getTracks()[0].onended = () => {
@@ -172,6 +184,9 @@ const VideoChatScreen: React.FC = ()  => {
 
     socket.on('user-started-presentation', (userId) => {
         console.log("A user is presenting ", userId)
+        if (!connectionStateRef.current.hasJoinedPresentation) {
+            connectionStateRef.current.hasJoinedPresentation = true
+        }
         connectToRemotePresentation(userId)
         // setRemoteUserPresentingProccessing(true)
     })
@@ -190,17 +205,20 @@ const VideoChatScreen: React.FC = ()  => {
     const connectToRemotePresentation = (presentaterUserId: any) => {
         const presentationId = "presentation-"+ connectionUserId.current
         console.log(`lofty presentation id:  ${presentationId}`)
-        presentationPeer.current = new Peer(presentationId, {
-            host: CONFIG.peerUrl,
-            port: 9001,
-            path: '/peer',
-        });
-        presentationPeer.current.on('open', userId => {
-            console.log("connected to presentation room with userId: ", userId)
-        })
+        if (connectionStateRef.current.hasJoinedPresentation) {
+            presentationPeer.current = new Peer(presentationId, {
+                host: CONFIG.peerUrl,
+                port: 9001,
+                path: '/peer',
+                secure: true
+            });
+            presentationPeer.current.on('open', userId => {
+                console.log("connected to presentation room with userId: ", userId)
+            })
+        }
 
         presentationCall.current = presentationPeer?.current?.call(presentaterUserId, localStream.current!)
-        
+
         setIsPresenting(true)
         presentationCall.current?.on('stream', presentationStream => {
             console.log("recevied presentation stream: ", presentationStream)
@@ -213,6 +231,10 @@ const VideoChatScreen: React.FC = ()  => {
                 presentationVideo!.play()
             })
             setRemoteUserPresentingProccessing(false)
+
+            presentationCall.current?.on('close', () => {
+                console.log("Closed connection")
+            })
         })
         presentationPeers.current[presentaterUserId] = presentationCall.current
         presentationCall.current!.on('close', () => {
@@ -237,6 +259,7 @@ const VideoChatScreen: React.FC = ()  => {
             host: CONFIG.peerUrl,
             port: 9001,
             path: '/peer',
+            secure: true
         });
 
         console.log("peer: ", myPeer.current)
