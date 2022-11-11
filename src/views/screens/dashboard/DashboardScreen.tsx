@@ -29,7 +29,7 @@ const DashboardScreen: React.FC = ()  => {
     const userProfile: any = useSelector((state: any) => state.user);
     
     const spaceNameRef = useRef<any>()
-    const videoRoomNameRef = useRef<any>()
+    const videoRoomNameRef = useRef<any>("")
     const audioRoomNameRef = useRef<any>()
     const navigate = useNavigate()
     // const { socket, sendPing } = useSocket()
@@ -179,7 +179,7 @@ const DashboardScreen: React.FC = ()  => {
                 <h1>Video Room</h1>
                 <div className="input-field">
                     <label htmlFor="video-room-title">Title</label>
-                    <input ref={videoRoomNameRef} id="video-room-title" type="text" placeholder="Enter room title" />
+                    <input ref={videoRoomNameRef} id="video-room-title" type="text" placeholder="Enter room title" defaultValue={videoRoomNameRef.current.value} />
                 </div>
                 <div className="input-field">
                     <label htmlFor="video-room-title">Start time</label>

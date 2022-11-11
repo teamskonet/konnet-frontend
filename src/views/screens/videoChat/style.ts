@@ -71,6 +71,7 @@ export const VideoWrapper = styled.div`
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
+    justify-content: flex-end;
     width: 100%;
     max-width: 1080px;
     border-radius: 10px;
@@ -80,11 +81,69 @@ export const VideoWrapper = styled.div`
     position: relative;
     overflow: hidden;
     margin: 0px auto;
+    padding: 10px 10px 88px 10px;
+    
+
+    @media screen and (min-width: 880px) {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .remote-users {
+        background: #000;
+        flex: 1;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+
+        img {
+            min-height: 100%;
+            min-width: 100%;
+            object-fit: cover;
+        }
+
+        span {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 13px;
+            color: #09132C;
+            background-color: #fff6;
+            padding: 8px 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(3px);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+`;
+
+
+export const StreamWrapper = styled.div<{isPresenting: boolean}>`
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: 100%;
+    height: ${props => props.isPresenting ? '180px' : '100%'};
+    /* flex: 1; */
+    border-radius: 10px;
+    gap: 10px;
+    background-color: #444;
+    position: relative;
+    overflow: hidden;
     padding: 10px;
     
 
     @media screen and (min-width: 880px) {
         flex-direction: row;
+        width: ${props => props.isPresenting ? '240px' : '100%'};
+        height: 100%;
     }
 
     /* video {
@@ -161,7 +220,7 @@ export const UserCallBlock = styled.div`
     overflow: hidden;
     box-shadow: 0px 0px 10px -2px #ccc;
     right: 20px;
-    bottom: 90px;
+    bottom: 20px;
     z-index: 999;
 
     video {
@@ -172,6 +231,31 @@ export const UserCallBlock = styled.div`
     @media screen and (min-width: 880px) {
         flex-direction: row;
         bottom: 20px;
+    }
+`;
+
+
+export const UserPresentation = styled.div<{isPresenting: boolean}>`
+    display: ${props => props.isPresenting ? "flex" : "none"};
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* height: auto; */
+    flex: 1;
+    background-color: #000;
+
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 999;
+    position: relative;
+
+    video {
+        width: 100%;
+        object-fit: contain;
+    }
+
+    @media screen and (min-width: 880px) {
+        height: calc(100% - 1px);
     }
 `;
 
@@ -208,7 +292,7 @@ export const ControlWrapper = styled.div`
     width: 100%;
     z-index: 9999;
 `;
-export const ControlItem= styled.div`
+export const ControlItem = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;

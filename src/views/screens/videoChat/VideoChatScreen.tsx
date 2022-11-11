@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 import useQuery from '../../../hooks/useQuery'
 import useSocket from '../../../hooks/useSocket'
-import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, UserCallBlock,  } from './style'
+import { Wrapper, Content, HeadBar, VideoWrapper, AddPeople, ControlItem, ControlWrapper, UserCallBlock, UserPresentation, StreamWrapper,  } from './style'
 import { MediaConnection, Peer } from "peerjs";
 import CONFIG from '../../../Utils/appConst'
 
@@ -17,6 +17,7 @@ const VideoChatScreen: React.FC = ()  => {
     const { socket, sendPing } = useSocket()
     const location: any = useLocation();
     const userProfile: any = useSelector((state: any) => state.user);
+    const [isPresenting, setIsPresenting] = useState<boolean>(false);
     const [callSettingsState, setCallSettingsState] = useState<{
         video: boolean,
         audio: boolean
@@ -28,6 +29,10 @@ const VideoChatScreen: React.FC = ()  => {
     let roomId = query.get('room')
     let isRoomOwner = false;
 
+    const connectionUserId = useRef(userProfile.userId)
+
+       
+
 
     const chekForVideoRoom = async () => {
         if (location?.state?.owner) {
@@ -37,7 +42,7 @@ const VideoChatScreen: React.FC = ()  => {
         }
 
         const res = await axios.get(`${CONFIG.socketUrl}/v1/room/video/${roomId}`)
-        if (res.data.data.userId == userProfile.userId) {
+        if (res.data.data.userId === userProfile.userId) {
             isRoomOwner = true
 
             setUpMediaScreen()
@@ -48,7 +53,8 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
     const localStream = useRef<MediaStream | null>(null);
-    let myCall: MediaConnection;
+    let myCall: MediaConnection | undefined;
+    
 
     const togggleVideo = async () => {
         if (callSettingsState.video) {
@@ -103,15 +109,122 @@ const VideoChatScreen: React.FC = ()  => {
 
     const setUpMediaScreen = () => {
         navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: true,
+            audio: callSettingsState.audio,
+            video: callSettingsState.video,
         }).then((stream) => {
             localStream.current = stream;
             startWebCam()
         });
     }
+
+    const presentationStream = useRef<MediaStream | null>(null);
+    const presentationPeer = useRef<Peer | null>(null);
+    const myPeer = useRef<Peer | null>(null);
+    const presentationPeers = useRef<any>({})
+
+    function startCapture() {
+        const presentationId = "presentation-"+ connectionUserId.current
+        const presentationVideo: HTMLVideoElement | null = document.querySelector('.client-presentation-stream')
+         navigator.mediaDevices.getDisplayMedia({audio: false, video: true}).then((stream) => {
+            presentationStream.current = stream
+
+            presentationVideo?.setAttribute("autoplay", "")
+            presentationVideo?.setAttribute("playsInline", "")
+            presentationVideo!.muted = true;
+            presentationVideo!.srcObject = presentationStream.current
+            presentationVideo!.addEventListener('loadedmetadata', () => {
+                presentationVideo!.play()
+            })
+            presentationPeer.current = new Peer(presentationId, {
+                host: CONFIG.peerUrl,
+                port: 9001,
+                path: '/peer',
+            });
+
+
+            presentationPeer.current.on('open', userId => {
+                console.log("connected to presentation room with userId: ", userId)
+                socket.emit('client-presentation-started', roomId, presentationId)
+            })
+
+            presentationPeer.current.on('call', call => {
+                console.log("presentation caller user: ", call.peer)
+                presentationPeers.current[call.peer] = call
+                call.answer(presentationStream.current!)
+
+                // call.on('stream', userVideoStream => {
+                //     console.log("remote presentation viewer sent sream: ", userVideoStream)
+                // })
+            })
+
+            presentationStream.current.getTracks()[0].onended = () => {
+                setIsPresenting(false)
+                socket.emit('client-presentation-ended', roomId, presentationId)
+            }
+            setIsPresenting(true)
+            
+        });
+
+        
+    }
+
+    const [remoteUserPresentingProccessing, setRemoteUserPresentingProccessing] = useState<boolean>(false)
+
+    socket.on('user-started-presentation', (userId) => {
+        console.log("A user is presenting ", userId)
+        connectToRemotePresentation(userId)
+        // setRemoteUserPresentingProccessing(true)
+    })
+
+    socket.on('user-ended-presentation', (userId) => {
+        console.log("A user has ended presentation ", userId)
+        // setRemoteUserPresentingProccessing(true)
+        if (presentationPeers.current[userId]) {
+            presentationPeers.current[userId].close()
+            setIsPresenting(false)
+            console.log("omo peer: ", presentationPeers.current)
+        }
+    })
+
+    const presentationCall = useRef<MediaConnection | undefined>();
+    const connectToRemotePresentation = (presentaterUserId: any) => {
+        const presentationId = "presentation-"+ connectionUserId.current
+        console.log(`lofty presentation id:  ${presentationId}`)
+        presentationPeer.current = new Peer(presentationId, {
+            host: CONFIG.peerUrl,
+            port: 9001,
+            path: '/peer',
+        });
+        presentationPeer.current.on('open', userId => {
+            console.log("connected to presentation room with userId: ", userId)
+        })
+
+        presentationCall.current = presentationPeer?.current?.call(presentaterUserId, localStream.current!)
+        
+        setIsPresenting(true)
+        presentationCall.current?.on('stream', presentationStream => {
+            console.log("recevied presentation stream: ", presentationStream)
+            const presentationVideo: HTMLVideoElement | null = document.querySelector('.client-presentation-stream')
+            presentationVideo?.setAttribute("autoplay", "")
+            presentationVideo?.setAttribute("playsInline", "")
+            presentationVideo!.muted = true;
+            presentationVideo!.srcObject = presentationStream
+            presentationVideo!.addEventListener('loadedmetadata', () => {
+                presentationVideo!.play()
+            })
+            setRemoteUserPresentingProccessing(false)
+        })
+        presentationPeers.current[presentaterUserId] = presentationCall.current
+        presentationCall.current!.on('close', () => {
+            setIsPresenting(false)
+        })
+
+    }
     
-    const peers: any = {}
+
+
+
+    const peers = useRef<any>({})
     const startWebCam = async () => {
         const myVideo: HTMLVideoElement | null = document.querySelector('.client-local-stream')
         myVideo?.setAttribute("autoplay", "")
@@ -120,32 +233,35 @@ const VideoChatScreen: React.FC = ()  => {
 
         // localStream.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true})
 
-        
-
-
-        let myPeer: Peer = new Peer(userProfile.userId, {
+        myPeer.current = new Peer(userProfile.userId, {
             host: CONFIG.peerUrl,
             port: 9001,
             path: '/peer',
-            secure: true,
         });
 
-        console.log("peer: ", myPeer)
-        console.log("omo lofty")
-        myPeer.on('open', userId => {
+        console.log("peer: ", myPeer.current)
+        myPeer.current.on('open', userId => {
             console.log("connected to room with userId: ", userId)
             socket.emit('join-video-room', roomId, userId)
         })
-        myPeer.on('call', call => {
+        myPeer.current.on('call', call => {
             call.answer(localStream.current!)
             const remoteVideoWrapper = document.createElement('div')
             remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
             remoteVideoWrapper.appendChild(remoteVideo)
             videoWrapper?.append(remoteVideoWrapper)
+
+            console.log("caller user: ", call.peer)
+
+            peers.current[call.peer] = call
             
             call.on('stream', userVideoStream => {
                 addVideoStream(remoteVideoWrapper, userVideoStream)
+            })
+
+            call?.on('close', () => {
+                remoteVideoWrapper.remove();
             })
         })
 
@@ -160,7 +276,7 @@ const VideoChatScreen: React.FC = ()  => {
         })
 
         const connectToNewUser = (userId: any, stream: any) => {
-            myCall = myPeer.call(userId, stream)
+            myCall = myPeer.current?.call(userId, stream)
 
             const remoteVideoWrapper = document.createElement('div')
             remoteVideoWrapper.classList.add("remote-users")
@@ -169,23 +285,28 @@ const VideoChatScreen: React.FC = ()  => {
             videoWrapper?.append(remoteVideoWrapper)
 
 
-            myCall.on('stream', userVideoStream => {
+            myCall?.on('stream', userVideoStream => {
                 console.log("recevied user video stream: ", userVideoStream)
                 addVideoStream(remoteVideoWrapper, userVideoStream)
             })
-            myCall.on('close', () => {
+            myCall?.on('close', () => {
                 remoteVideoWrapper.remove();
             })
 
-            peers[userId] = myCall
+            peers.current[userId] = myCall
         }
 
         socket.on('user-disconnected', userId => {
             console.log('user disconnected: ', userId)
-            if (peers[userId]) {
-                peers[userId].close()
+            if (peers.current[userId]) {
+                peers.current[userId].close()
+                console.log("omo peer: ", peers.current)
             }
         })
+    }
+
+    const checkPeerUsers = () => {
+        console.log(presentationPeers.current)
     }
 
     const initRoom = () => {
@@ -196,6 +317,7 @@ const VideoChatScreen: React.FC = ()  => {
 
     useEffect(() => {
         initRoom()
+        connectionUserId.current = userProfile.userId
     }, [userProfile.userId])
     return (
         <Wrapper>
@@ -209,38 +331,44 @@ const VideoChatScreen: React.FC = ()  => {
                 </div>
             </HeadBar>
             <Content>
-                <VideoWrapper className="video-section">
-                    {/* <CallBlock>
-                        <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
-                        <span>Vinay Gupta</span>
-                    </CallBlock>
-                    <CallBlock>
-                        <img src="https://images.unsplash.com/flagged/photo-1577125543470-61d192113f10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
-                        <span>Vinay Gupta</span>
-                    </CallBlock>
-                    <CallBlock>
-                        <img src="https://images.unsplash.com/photo-1595951960408-a7259baee032?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2444&q=80" alt="person in video call" />
-                        <span>Vinay Gupta</span>
-                    </CallBlock>
-                    <CallBlock>
-                        <img src="https://images.unsplash.com/photo-1612000529646-f424a2aa1bff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
-                        <span>Vinay Gupta</span>
-                    </CallBlock> */}
-                    {/*" <UserCallBlock>
-                        <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
-                    </UserCallBlock> */}
+                <VideoWrapper>
+                    <UserPresentation isPresenting={isPresenting}>
+                        <video className="client-presentation-stream" src="" muted={true}></video>
+                    </UserPresentation>
+                    <StreamWrapper isPresenting={isPresenting} className="video-section">
+                        {/* <CallBlock>
+                            <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
+                            <span>Vinay Gupta</span>
+                        </CallBlock>
+                        <CallBlock>
+                            <img src="https://images.unsplash.com/flagged/photo-1577125543470-61d192113f10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
+                            <span>Vinay Gupta</span>
+                        </CallBlock>
+                        <CallBlock>
+                            <img src="https://images.unsplash.com/photo-1595951960408-a7259baee032?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2444&q=80" alt="person in video call" />
+                            <span>Vinay Gupta</span>
+                        </CallBlock>
+                        <CallBlock>
+                            <img src="https://images.unsplash.com/photo-1612000529646-f424a2aa1bff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
+                            <span>Vinay Gupta</span>
+                        </CallBlock> */}
+                        {/*" <UserCallBlock>
+                            <img src="https://images.unsplash.com/photo-1597199204011-e6e704645213?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80" alt="person in video call" />
+                        </UserCallBlock> */}
 
-                    <UserCallBlock>
-                        <video className="client-local-stream" src="" muted={true}></video>
-                    </UserCallBlock>
+                        <UserCallBlock>
+                            <video className="client-local-stream" src="" muted={true}></video>
+                        </UserCallBlock>
+                    </StreamWrapper>
+
                     <ControlWrapper>
-                        <ControlItem>
+                        <ControlItem onClick={checkPeerUsers}>
                             <VscRecord />
                         </ControlItem>
-                        <ControlItem  onClick={togggleAudio}>
+                        <ControlItem onClick={togggleAudio}>
                             {callSettingsState.audio ? <BsMic /> : <BsMicMute />}
                         </ControlItem>
-                        <ControlItem>
+                        <ControlItem onClick={() => startCapture()}>
                             <MdPresentToAll />
                         </ControlItem>
                         <ControlItem onClick={togggleVideo}>

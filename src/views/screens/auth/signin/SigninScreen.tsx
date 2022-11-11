@@ -88,7 +88,7 @@ const SigninScreen: React.FC = () => {
                     <h3>Welcome to TeamKonect, the perfect place to connect</h3>
                     <img src="/assets/img/signup-img.png" alt="video call" />
                 </ColumOne>
-                <ColumTwo>
+                <ColumTwo onSubmit={(e) => signin(e)}>
                     <div className="google-auth">
                         <div className="google-box">
                             <AiOutlineGooglePlus />

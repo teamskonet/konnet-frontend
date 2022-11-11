@@ -69,7 +69,7 @@ export const  ColumOne = styled.div`
         }
     }
 `;
-export const  ColumTwo = styled.div`
+export const  ColumTwo = styled.form`
     display: flex;
     order: 3;
     flex-direction: column;

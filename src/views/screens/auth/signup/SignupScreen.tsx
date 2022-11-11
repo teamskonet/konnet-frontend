@@ -78,7 +78,7 @@ const SignupScreen: React.FC = () => {
                     <h3>Welcome to TeamKonect, the perfect place to connect</h3>
                     <img src="/assets/svg/signup-vector.svg" alt="video call" />
                 </ColumOne>
-                <ColumTwo>
+                <ColumTwo onSubmit={(e) => signup(e)}>
                     <div className="google-auth">
                         <div className="google-box">
                             <AiOutlineGooglePlus />
