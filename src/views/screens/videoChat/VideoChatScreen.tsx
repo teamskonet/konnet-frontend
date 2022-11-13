@@ -151,7 +151,7 @@ const VideoChatScreen: React.FC = ()  => {
 
             presentationPeer.current.on('open', userId => {
                 console.log("connected to presentation room with userId: ", userId)
-                socket.emit('client-presentation-started', roomId, presentationId)
+                socket.emit('join-video-room', roomId, presentationId)
             })
 
             presentationPeer.current.on('call', call => {
@@ -171,7 +171,9 @@ const VideoChatScreen: React.FC = ()  => {
 
             presentationStream.current.getTracks()[0].onended = () => {
                 setIsPresenting(false)
+                presentationPeer.current?.disconnect()
                 socket.emit('client-presentation-ended', roomId, presentationId)
+                // socket.emit('join-video-room', roomId, presentationId)
             }
             setIsPresenting(true)
             
@@ -181,70 +183,6 @@ const VideoChatScreen: React.FC = ()  => {
     }
 
     const [remoteUserPresentingProccessing, setRemoteUserPresentingProccessing] = useState<boolean>(false)
-
-    socket.on('user-started-presentation', (userId) => {
-        console.log("A user is presenting ", userId)
-        if (!connectionStateRef.current.hasJoinedPresentation) {
-            connectionStateRef.current.hasJoinedPresentation = true
-        }
-        connectToRemotePresentation(userId)
-        // setRemoteUserPresentingProccessing(true)
-    })
-
-    socket.on('user-ended-presentation', (userId) => {
-        console.log("A user has ended presentation ", userId)
-        // setRemoteUserPresentingProccessing(true)
-        if (presentationPeers.current[userId]) {
-            presentationPeers.current[userId].close()
-            setIsPresenting(false)
-            console.log("omo peer: ", presentationPeers.current)
-        }
-    })
-
-    const presentationCall = useRef<MediaConnection | undefined>();
-    const connectToRemotePresentation = (presentaterUserId: any) => {
-        const presentationId = "presentation-"+ connectionUserId.current
-        console.log(`lofty presentation id:  ${presentationId}`)
-        if (connectionStateRef.current.hasJoinedPresentation) {
-            presentationPeer.current = new Peer(presentationId, {
-                host: CONFIG.peerUrl,
-                port: 9001,
-                path: '/peer',
-                secure: true
-            });
-            presentationPeer.current.on('open', userId => {
-                console.log("connected to presentation room with userId: ", userId)
-            })
-        }
-
-        presentationCall.current = presentationPeer?.current?.call(presentaterUserId, localStream.current!)
-
-        setIsPresenting(true)
-        presentationCall.current?.on('stream', presentationStream => {
-            console.log("recevied presentation stream: ", presentationStream)
-            const presentationVideo: HTMLVideoElement | null = document.querySelector('.client-presentation-stream')
-            presentationVideo?.setAttribute("autoplay", "")
-            presentationVideo?.setAttribute("playsInline", "")
-            presentationVideo!.muted = true;
-            presentationVideo!.srcObject = presentationStream
-            presentationVideo!.addEventListener('loadedmetadata', () => {
-                presentationVideo!.play()
-            })
-            setRemoteUserPresentingProccessing(false)
-
-            presentationCall.current?.on('close', () => {
-                console.log("Closed connection")
-            })
-        })
-        presentationPeers.current[presentaterUserId] = presentationCall.current
-        presentationCall.current!.on('close', () => {
-            setIsPresenting(false)
-        })
-
-    }
-    
-
-
 
     const peers = useRef<any>({})
     const startWebCam = async () => {
@@ -295,7 +233,11 @@ const VideoChatScreen: React.FC = ()  => {
 
         socket.on('new-user-join-video-room', (userId) => {
             console.log("new user joined room: ", userId)
-            connectToNewUser(userId, localStream.current)
+            if (userId.split('-')[0] != "presentation") {
+                connectToNewUser(userId, localStream.current)
+            } else if (userProfile.userId != userId.split('-')[1]) {
+                connectToUserRemotePresentation(userId)
+            }
         })
 
         const connectToNewUser = (userId: any, stream: any) => {
@@ -319,11 +261,51 @@ const VideoChatScreen: React.FC = ()  => {
             peers.current[userId] = myCall
         }
 
+        const connectToUserRemotePresentation = (presentaterUserId: any) => {
+            const presentationId = "presentation-"+ connectionUserId.current
+            console.log(`lofty presentation id:  ${presentationId}`)
+            myCall = myPeer.current?.call(presentaterUserId, localStream.current!)
+
+            setIsPresenting(true)
+            myCall?.on('stream', presentationStream => {
+                console.log("recevied presentation stream: ", presentationStream)
+                const presentationVideo: HTMLVideoElement | null = document.querySelector('.client-presentation-stream')
+                presentationVideo?.setAttribute("autoplay", "")
+                presentationVideo?.setAttribute("playsInline", "")
+                presentationVideo!.muted = true;
+                presentationVideo!.srcObject = presentationStream
+                presentationVideo!.addEventListener('loadedmetadata', () => {
+                    presentationVideo!.play()
+                })
+                setRemoteUserPresentingProccessing(false)
+            })
+            peers.current[presentaterUserId] = myCall
+            myCall?.on('close', () => {
+                setIsPresenting(false)
+            })
+        }
+
         socket.on('user-disconnected', userId => {
             console.log('user disconnected: ', userId)
             if (peers.current[userId]) {
                 peers.current[userId].close()
                 console.log("omo peer: ", peers.current)
+
+                // if (!presentationPeers.current[userId]) {
+                //     setIsPresenting(false)
+                //     peers.current[userId].close()
+                // }
+            }
+        })
+
+        socket.on('user-ended-presentation', (userId) => {
+            if (peers.current[userId]) {
+                peers.current[userId].close()
+                console.log("omo peer: ", peers.current)
+
+                if (userProfile.userId != userId.split('-')[1]) {
+                    setIsPresenting(false)
+                }
             }
         })
     }
