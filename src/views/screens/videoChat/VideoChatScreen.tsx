@@ -115,8 +115,11 @@ const VideoChatScreen: React.FC = ()  => {
 
     const setUpMediaScreen = () => {
         navigator.mediaDevices.getUserMedia({
-            audio: callSettingsState.audio,
-            video: callSettingsState.video,
+            audio: {
+                noiseSuppression: true,
+                echoCancellation: true,
+            },
+            video: true,
         }).then((stream) => {
             localStream.current = stream;
             startWebCam()
