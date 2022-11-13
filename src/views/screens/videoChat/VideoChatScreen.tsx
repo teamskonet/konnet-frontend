@@ -206,24 +206,45 @@ const VideoChatScreen: React.FC = ()  => {
             socket.emit('join-video-room', roomId, userId)
         })
         myPeer.current.on('call', call => {
-            call.answer(localStream.current!)
-            const remoteVideoWrapper = document.createElement('div')
-            remoteVideoWrapper.classList.add("remote-users")
-            const remoteVideo = document.createElement('video')
-            remoteVideoWrapper.appendChild(remoteVideo)
-            videoWrapper?.append(remoteVideoWrapper)
+            if (call.peer.split('-')[0] != "presentation") {
+                call.answer(localStream.current!)
+                const remoteVideoWrapper = document.createElement('div')
+                remoteVideoWrapper.classList.add("remote-users")
+                const remoteVideo = document.createElement('video')
+                remoteVideoWrapper.appendChild(remoteVideo)
+                videoWrapper?.append(remoteVideoWrapper)
 
-            console.log("caller user: ", call.peer)
+                console.log("caller user: ", call.peer)
 
-            peers.current[call.peer] = call
-            
-            call.on('stream', userVideoStream => {
-                addVideoStream(remoteVideoWrapper, userVideoStream)
-            })
+                peers.current[call.peer] = call
+                
+                call.on('stream', userVideoStream => {
+                    addVideoStream(remoteVideoWrapper, userVideoStream)
+                })
 
-            call?.on('close', () => {
-                remoteVideoWrapper.remove();
-            })
+                call?.on('close', () => {
+                    remoteVideoWrapper.remove();
+                })
+            } else if (userProfile.userId != call.peer.split('-')[1]) {
+                call.answer(localStream.current!)
+                setIsPresenting(true)
+                call?.on('stream', presentationStream => {
+                    console.log("recevied presentation stream: ", presentationStream)
+                    const presentationVideo: HTMLVideoElement | null = document.querySelector('.client-presentation-stream')
+                    presentationVideo?.setAttribute("autoplay", "")
+                    presentationVideo?.setAttribute("playsInline", "")
+                    presentationVideo!.muted = true;
+                    presentationVideo!.srcObject = presentationStream
+                    presentationVideo!.addEventListener('loadedmetadata', () => {
+                        presentationVideo!.play()
+                    })
+                    setRemoteUserPresentingProccessing(false)
+                })
+                peers.current[call.peer] = myCall
+                call?.on('close', () => {
+                    setIsPresenting(false)
+                })
+            }
         })
 
         myVideo!.srcObject = localStream.current
@@ -235,6 +256,11 @@ const VideoChatScreen: React.FC = ()  => {
             console.log("new user joined room: ", userId)
             if (userId.split('-')[0] != "presentation") {
                 connectToNewUser(userId, localStream.current)
+                console.log("presentation state: ", isPresenting)
+                if (presentationStream.current?.getVideoTracks()[0].enabled) {
+                    console.log("I am user is presenting")
+                    presentationPeer.current?.call(userId, presentationStream.current!);
+                }
             } else if (userProfile.userId != userId.split('-')[1]) {
                 connectToUserRemotePresentation(userId)
             }
