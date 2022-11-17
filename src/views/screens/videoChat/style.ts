@@ -82,6 +82,32 @@ export const VideoWrapper = styled.div`
     overflow: hidden;
     margin: 0px auto;
     padding: 10px 10px 88px 10px;
+
+    .recoreded-media {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        ::before {
+            content: "";
+            background: #0006;
+            display: block;
+            width: 100%;
+            height: 100%;
+            z-index: 33;
+        }
+
+        video {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            z-index: 9999;
+        }
+    }
     
 
     @media screen and (min-width: 880px) {

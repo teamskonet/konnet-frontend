@@ -103,7 +103,11 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
-    const videoWrapper = document.querySelector('.video-section')
+    let videoWrapper: any;
+
+    useEffect(() => {
+        videoWrapper = document.querySelector('.video-section')
+    }, [])
 
     function addVideoStream(videoWrapper: any, stream: any) {
         const video: HTMLVideoElement = videoWrapper.querySelector('video')
@@ -124,6 +128,53 @@ const VideoChatScreen: React.FC = ()  => {
             localStream.current = stream;
             startWebCam()
         });
+    }
+    const streamRecorder = useRef<MediaRecorder | null>();
+    const recordedVideoRef = useRef<any>();
+    const [showRecordedMedia, setShowRecordedMedia] = useState(false)
+    const [isRecording, setIsRecording] = useState(false)
+
+    const closeRecordedModal = (e: any) => {
+        if (e.target != recordedVideoRef.current) {
+            recordedVideoRef.current.parentNode.style.display = "none"
+        }
+    }
+    function startRecording() {
+        console.log("is recording media")
+        setIsRecording(true)
+        streamRecorder.current = new MediaRecorder(presentationStream.current!);
+
+        const chunks: any = [];
+        streamRecorder.current.ondataavailable = e => chunks.push(e.data);
+        streamRecorder.current.onstop = e => {
+            setIsRecording(false)
+            const completeBlob = new Blob(chunks, { type: chunks[0].type });
+            recordedVideoRef.current.parentNode.style.display = "flex"
+            recordedVideoRef.current.src = URL.createObjectURL(completeBlob);
+            recordedVideoRef.current.load();
+            recordedVideoRef.current.play();
+
+            postVideoToServer(completeBlob)
+            console.log("stoped recording media")
+        };
+
+        streamRecorder.current.start();
+    }
+    function stopRecording() {
+        streamRecorder.current?.stop();
+    }
+    const postVideoToServer = async (videoblob: any) => {
+        const videoData = new FormData();
+        videoData.append('file', videoblob);
+
+        const res = await axios.post("https://loftywebtech.com/gotocourse/api/v1/file/upload", videoData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjJhOWZiNWRhMzNhMjUzZjY3N2M0ZDdmIiwiZW1haWwiOiJhZG1pbjFAZ21haWwuY29tIn0sImlhdCI6MTY2ODM3MDM4OSwiZXhwIjoxNjY4NDU2Nzg5fQ.Yc-SSARTi84NLWGqKVPwCmBsM7wTp2zy-bGvb4w8RO8"
+            }
+        })
+
+        console.log(res.data)
     }
 
     const presentationStream = useRef<MediaStream | null>(null);
@@ -366,6 +417,9 @@ const VideoChatScreen: React.FC = ()  => {
             </HeadBar>
             <Content>
                 <VideoWrapper>
+                     <div onClick={closeRecordedModal} className="recoreded-media">
+                        <video ref={recordedVideoRef} src=""></video>
+                    </div>
                     <UserPresentation isPresenting={isPresenting}>
                         <video className="client-presentation-stream" src="" muted={true}></video>
                     </UserPresentation>
@@ -396,7 +450,13 @@ const VideoChatScreen: React.FC = ()  => {
                     </StreamWrapper>
 
                     <ControlWrapper>
-                        <ControlItem onClick={checkPeerUsers}>
+                        <ControlItem onClick={() => {
+                            if (!isRecording) {
+                                startRecording()
+                            } else {
+                                stopRecording()
+                            }
+                        }}>
                             <VscRecord />
                         </ControlItem>
                         <ControlItem onClick={togggleAudio}>

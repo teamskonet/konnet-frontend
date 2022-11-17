@@ -7,7 +7,7 @@ let baseURL;
 if (REACT_APP_SERVER_HOST) {
   baseURL = `${REACT_APP_SERVER_HOST}/`;
 } else {
-  const host = "https://api.cholatrek.io";
+  const host = "https://loftywebtech.com/gotocourse/api/v1/file/upload";
   baseURL = `${host}/`;
 }
 
