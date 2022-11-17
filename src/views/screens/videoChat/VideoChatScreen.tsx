@@ -106,7 +106,7 @@ const VideoChatScreen: React.FC = ()  => {
     const videoWrapper = useRef<any>()
 
     function addVideoStream(videoWrapper: any, stream: any) {
-        const video: HTMLVideoElement = videoWrapper.current.querySelector('video')
+        const video: HTMLVideoElement = videoWrapper.querySelector('video')
         video.srcObject = stream
         video.addEventListener('loadedmetadata', () => {
           video.play()
