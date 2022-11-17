@@ -103,14 +103,10 @@ const VideoChatScreen: React.FC = ()  => {
         }
     }
 
-    let videoWrapper: any;
-
-    useEffect(() => {
-        videoWrapper = document.querySelector('.video-section')
-    }, [])
+    const videoWrapper = useRef<any>()
 
     function addVideoStream(videoWrapper: any, stream: any) {
-        const video: HTMLVideoElement = videoWrapper.querySelector('video')
+        const video: HTMLVideoElement = videoWrapper.current.querySelector('video')
         video.srcObject = stream
         video.addEventListener('loadedmetadata', () => {
           video.play()
@@ -266,7 +262,7 @@ const VideoChatScreen: React.FC = ()  => {
                 remoteVideoWrapper.classList.add("remote-users")
                 const remoteVideo = document.createElement('video')
                 remoteVideoWrapper.appendChild(remoteVideo)
-                videoWrapper?.append(remoteVideoWrapper)
+                videoWrapper.current?.append(remoteVideoWrapper)
 
                 console.log("caller user: ", call.peer)
 
@@ -327,7 +323,7 @@ const VideoChatScreen: React.FC = ()  => {
             remoteVideoWrapper.classList.add("remote-users")
             const remoteVideo = document.createElement('video')
             remoteVideoWrapper.appendChild(remoteVideo)
-            videoWrapper?.append(remoteVideoWrapper)
+            videoWrapper.current?.append(remoteVideoWrapper)
 
 
             myCall?.on('stream', userVideoStream => {
@@ -423,7 +419,7 @@ const VideoChatScreen: React.FC = ()  => {
                     <UserPresentation isPresenting={isPresenting}>
                         <video className="client-presentation-stream" src="" muted={true}></video>
                     </UserPresentation>
-                    <StreamWrapper isPresenting={isPresenting} className="video-section">
+                    <StreamWrapper ref={videoWrapper} isPresenting={isPresenting} className="video-section">
                         {/* <CallBlock>
                             <img src="https://images.unsplash.com/photo-1603112579965-e24332cc453a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="person in video call" />
                             <span>Vinay Gupta</span>
